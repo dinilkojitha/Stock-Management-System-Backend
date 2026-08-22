@@ -1,6 +1,7 @@
 package com.example.stockmanagementsystembackend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +16,8 @@ public class Category {
     @Column(name = "categoryID", nullable = false)
     private Integer id;
 
-    @Size(max = 45)
+    @NotBlank(message = "categoryName must not be blank")
+    @Size(max = 45, message = "categoryName must not exceed 45 characters")
     @Column(name = "categoryName", length = 45)
     private String categoryName;
 
