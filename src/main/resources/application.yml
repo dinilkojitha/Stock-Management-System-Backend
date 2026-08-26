@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: Stock-Management-System-Backend
+
+  # MySQL Database Configuration
+  datasource:
+    url: jdbc:mysql://localhost:3306/se
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # JPA / Hibernate Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
