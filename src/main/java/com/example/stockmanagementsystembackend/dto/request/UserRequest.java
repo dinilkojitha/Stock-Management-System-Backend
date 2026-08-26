@@ -1,16 +1,10 @@
-package com.example.stockmanagementsystembackend.service;
+package com.example.stockmanagementsystembackend.dto.request;
 
 import com.example.stockmanagementsystembackend.entity.Department;
 import com.example.stockmanagementsystembackend.entity.Role;
-import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.stereotype.Service;
 
-@Service
-public class InventoryItemService {
-
-    @Id
-    private Integer id;
+public class UserRequest {
 
     private String fullName;
 
@@ -19,9 +13,10 @@ public class InventoryItemService {
 
     private String email;
 
+    private String password;
+
     private String phoneNumber;
 
     @NotNull
     private Department departmentDepartment;
-
 }
