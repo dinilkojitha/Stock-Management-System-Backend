@@ -18,13 +18,43 @@ import org.springframework.web.bind.annotation.RestController;
 public class StockTransferController {
 	private final StockTransferService transferService;
 	private final com.example.stockmanagementsystembackend.domain.stock.service.StockTransferPdfService pdfService;
-	public StockTransferController(StockTransferService transferService, com.example.stockmanagementsystembackend.domain.stock.service.StockTransferPdfService pdfService) { this.transferService = transferService; this.pdfService = pdfService; }
-	@PostMapping public Object create(@Valid @RequestBody StockTransferCreateRequest request) { return transferService.createTransferRequest(request); }
-	@GetMapping public Object getAll() { return transferService.getAllTransfers(); }
-	@GetMapping("/{id}") public Object get(@PathVariable Integer id) { return transferService.getTransferById(id); }
-	@GetMapping("/by-branch/{branchId}") public Object byBranch(@PathVariable Integer branchId) { return transferService.getTransfersByBranch(branchId); }
-	@PutMapping("/{id}/approve") public Object approve(@PathVariable Integer id) { return transferService.approveTransfer(id); }
-	@PutMapping("/{id}/reject") public Object reject(@PathVariable Integer id) { return transferService.rejectTransfer(id); }
+
+	public StockTransferController(StockTransferService transferService,
+			com.example.stockmanagementsystembackend.domain.stock.service.StockTransferPdfService pdfService) {
+		this.transferService = transferService;
+		this.pdfService = pdfService;
+	}
+
+	@PostMapping
+	public Object create(@Valid @RequestBody StockTransferCreateRequest request) {
+		return transferService.createTransferRequest(request);
+	}
+
+	@GetMapping
+	public Object getAll() {
+		return transferService.getAllTransfers();
+	}
+
+	@GetMapping("/{id}")
+	public Object get(@PathVariable Integer id) {
+		return transferService.getTransferById(id);
+	}
+
+	@GetMapping("/by-branch/{branchId}")
+	public Object byBranch(@PathVariable Integer branchId) {
+		return transferService.getTransfersByBranch(branchId);
+	}
+
+	@PutMapping("/{id}/approve")
+	public Object approve(@PathVariable Integer id) {
+		return transferService.approveTransfer(id);
+	}
+
+	@PutMapping("/{id}/reject")
+	public Object reject(@PathVariable Integer id) {
+		return transferService.rejectTransfer(id);
+	}
+
 	@GetMapping(value = "/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
 	public ResponseEntity<byte[]> pdf(@PathVariable Integer id) {
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,

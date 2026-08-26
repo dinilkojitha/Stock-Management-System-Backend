@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import java.util.List;
 
-@Getter @AllArgsConstructor
+@Getter
+@AllArgsConstructor
 public class StockTransferResponse {
     private Integer id;
     private Integer fromBranchId;

@@ -9,7 +9,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DepartmentRequest {
-    @NotBlank @Size(max = 45)
+    @NotBlank
+    @Size(max = 45)
     private String departmentName;
     @NotNull
     private Integer branchId;

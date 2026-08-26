@@ -25,8 +25,10 @@ public class OrderItemId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        if (this == o)
+            return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o))
+            return false;
         OrderItemId entity = (OrderItemId) o;
         return Objects.equals(this.orderOrderid, entity.orderOrderid) &&
                 Objects.equals(this.inventoryitemItemid, entity.inventoryitemItemid);

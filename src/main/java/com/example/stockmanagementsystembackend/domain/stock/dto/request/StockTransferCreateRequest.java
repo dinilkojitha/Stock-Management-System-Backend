@@ -7,11 +7,18 @@ import lombok.Getter;
 import lombok.Setter;
 import java.util.List;
 
-@Getter @Setter
+@Getter
+@Setter
 public class StockTransferCreateRequest {
-    @NotNull private Integer fromBranchId;
-    @NotNull private Integer toBranchId;
-    @NotNull private Integer requestedById;
-    @NotNull private Integer statusId;
-    @NotEmpty @Valid private List<TransferItemDto> items;
+    @NotNull
+    private Integer fromBranchId;
+    @NotNull
+    private Integer toBranchId;
+    @NotNull
+    private Integer requestedById;
+    @NotNull
+    private Integer statusId;
+    @NotEmpty
+    @Valid
+    private List<TransferItemDto> items;
 }

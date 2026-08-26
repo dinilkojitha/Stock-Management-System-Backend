@@ -41,11 +41,13 @@ public class StockTransferPdfService {
 
         String html = templateEngine.process("stock-transfer-receipt", context);
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            new PdfRendererBuilder().withHtmlContent(html, new ClassPathResource("templates/").getURL().toExternalForm())
+            new PdfRendererBuilder()
+                    .withHtmlContent(html, new ClassPathResource("templates/").getURL().toExternalForm())
                     .toStream(output).run();
             return output.toByteArray();
         } catch (IOException | RuntimeException exception) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not generate transfer PDF", exception);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not generate transfer PDF",
+                    exception);
         }
     }
 }

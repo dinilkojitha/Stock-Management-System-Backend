@@ -25,8 +25,10 @@ public class StockItemId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        if (this == o)
+            return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o))
+            return false;
         StockItemId entity = (StockItemId) o;
         return Objects.equals(this.stockBatchid, entity.stockBatchid) &&
                 Objects.equals(this.inventoryitemItemid, entity.inventoryitemItemid);

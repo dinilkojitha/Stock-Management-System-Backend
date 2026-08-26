@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface StockTransferRepository extends JpaRepository<StockTransferRequest, Integer> {
 	List<StockTransferRequest> findByBranchBranchid(Branch branch);
+
 	List<StockTransferRequest> findByToBranchBranchid(Branch branch);
 }
