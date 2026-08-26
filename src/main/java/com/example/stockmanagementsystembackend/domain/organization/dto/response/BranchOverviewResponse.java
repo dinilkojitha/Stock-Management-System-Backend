@@ -2,14 +2,11 @@ package com.example.stockmanagementsystembackend.domain.organization.dto.respons
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class BranchResponse {
-
-    private Integer id;
-
-    private String branchName;
-
-    private String location;
+public class BranchOverviewResponse {
+    private List<BranchSummaryResponse> branches;
+    private Integer totalBranches;
 }

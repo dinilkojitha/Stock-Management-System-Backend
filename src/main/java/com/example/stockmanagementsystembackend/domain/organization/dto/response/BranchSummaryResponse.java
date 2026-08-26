@@ -5,11 +5,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class BranchResponse {
-
+public class BranchSummaryResponse {
     private Integer id;
-
     private String branchName;
-
     private String location;
+    private Integer totalStockBatches;
+    private Integer departmentCount;
 }
