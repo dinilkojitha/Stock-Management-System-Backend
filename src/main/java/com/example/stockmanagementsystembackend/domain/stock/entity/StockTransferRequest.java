@@ -27,6 +27,11 @@ public class StockTransferRequest {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "To_Branch_branchID", nullable = false)
+    private Branch toBranchBranchid;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "User_userID", nullable = false)
     private User userUserid;
 
