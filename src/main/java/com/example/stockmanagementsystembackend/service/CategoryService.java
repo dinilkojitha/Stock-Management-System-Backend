@@ -43,7 +43,7 @@ public class CategoryService {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> categoryNotFound(id));
         existingCategory.setCategoryName(category.getCategoryName());
-        existingCategory.setDiscription(category.getDiscription());
+        existingCategory.setDescription(category.getDescription());
 
         return categoryRepository.save(existingCategory);
     }

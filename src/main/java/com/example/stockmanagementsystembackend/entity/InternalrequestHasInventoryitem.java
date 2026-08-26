@@ -22,4 +22,7 @@ public class InternalrequestHasInventoryitem {
     @JoinColumn(name = "InventoryItem_itemId", nullable = false)
     private Inventoryitem inventoryitemItem;
 
+    @Column(name = "quantity")
+    private Double quantity;
+
 }

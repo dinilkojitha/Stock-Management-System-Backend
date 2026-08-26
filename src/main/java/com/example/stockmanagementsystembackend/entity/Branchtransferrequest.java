@@ -10,8 +10,8 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "branchtransferrequeast")
-public class Branchtransferrequeast {
+@Table(name = "branchtransferrequest")
+public class Branchtransferrequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "TransferRequeastID", nullable = false)

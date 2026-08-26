@@ -1,7 +1,6 @@
 package com.example.stockmanagementsystembackend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,8 +15,7 @@ public class Unittype {
     @Column(name = "unitID", nullable = false)
     private Integer id;
 
-    @NotBlank(message = "unit must not be blank")
-    @Size(max = 45, message = "unit must not exceed 45 characters")
+    @Size(max = 45)
     @Column(name = "unit", length = 45)
     private String unit;
 

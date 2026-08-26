@@ -38,4 +38,8 @@ public class Transaction {
     @Column(name = "quantityChanged")
     private Double quantityChanged;
 
+    @Size(max = 120)
+    @Column(name = "remarks", length = 120)
+    private String remarks;
+
 }

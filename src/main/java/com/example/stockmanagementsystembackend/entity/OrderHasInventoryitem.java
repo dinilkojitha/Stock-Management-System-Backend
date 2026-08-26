@@ -1,7 +1,6 @@
 package com.example.stockmanagementsystembackend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,8 +22,10 @@ public class OrderHasInventoryitem {
     @JoinColumn(name = "InventoryItem_itemId", nullable = false)
     private Inventoryitem inventoryitemItem;
 
-    @Size(max = 45)
-    @Column(name = "quantity", length = 45)
-    private String quantity;
+    @Column(name = "quantity")
+    private Double quantity;
+
+    @Column(name = "purchasePrice")
+    private Double purchasePrice;
 
 }

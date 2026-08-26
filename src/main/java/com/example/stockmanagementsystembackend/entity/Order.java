@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -30,6 +31,12 @@ public class Order {
 
     @Column(name = "orderDate")
     private Instant orderDate;
+
+    @Column(name = "expectedDeliveryDate")
+    private LocalDate expectedDeliveryDate;
+
+    @Column(name = "actualDeliveryDate")
+    private LocalDate actualDeliveryDate;
 
     @Column(name = "totalCost")
     private Double totalCost;
