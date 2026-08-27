@@ -35,6 +35,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-### Test UI (local only, not for GitHub) ###
-test-ui/
