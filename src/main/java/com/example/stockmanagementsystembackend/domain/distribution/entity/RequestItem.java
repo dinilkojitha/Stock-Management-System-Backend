@@ -1,3 +1,6 @@
+/**
+ * Entity storing general stock item details, unit price, and quantities for distribution.
+ */
 package com.example.stockmanagementsystembackend.domain.distribution.entity;
 
 import com.example.stockmanagementsystembackend.domain.inventory.entity.InventoryItem;

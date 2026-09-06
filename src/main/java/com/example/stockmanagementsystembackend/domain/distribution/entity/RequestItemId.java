@@ -1,3 +1,7 @@
+/**
+ * Embeddable composite primary key (request_id + stock_item_id) for RequestItem.
+ */
+
 package com.example.stockmanagementsystembackend.domain.distribution.entity;
 
 import jakarta.persistence.Column;

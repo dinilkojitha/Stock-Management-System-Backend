@@ -1,3 +1,6 @@
+/**
+ * JPA repository interface for querying InternalRequest records from the database.
+ */
 package com.example.stockmanagementsystembackend.domain.distribution.repository;
 
 import com.example.stockmanagementsystembackend.domain.distribution.entity.InternalRequest;

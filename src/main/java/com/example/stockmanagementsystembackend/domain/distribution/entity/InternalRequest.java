@@ -1,3 +1,7 @@
+/**
+ * Main entity representing a department or branch stock requisition order.
+ */
+
 package com.example.stockmanagementsystembackend.domain.distribution.entity;
 
 import com.example.stockmanagementsystembackend.domain.organization.entity.Department;

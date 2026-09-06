@@ -1,3 +1,6 @@
+/**
+ * Entity representing line items and tracked quantities (requested, allocated, issued) for a request.
+ */
 package com.example.stockmanagementsystembackend.domain.distribution.entity;
 
 import com.example.stockmanagementsystembackend.domain.inventory.entity.InventoryItem;
