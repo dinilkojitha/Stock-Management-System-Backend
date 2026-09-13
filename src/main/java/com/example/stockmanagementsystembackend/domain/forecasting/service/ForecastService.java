@@ -19,7 +19,37 @@ public class ForecastService {
     // Create a forecast
     public ResponseEntity<String> createForecast(Forecast forecast) {
         forecastRepository.save(forecast);
-        return ResponseEntity.ok("gfdgg");
+        return ResponseEntity.ok("Forecast created successfully");
+    }
+
+    // Get all forecasts
+    public ResponseEntity<String> getAllForecasts() {
+
+        List<Forecast> forecasts =
+                forecastRepository.findAll();
+
+        if (forecasts.isEmpty()) {
+            return ResponseEntity.ok(
+                    "No forecasts found"
+            );
+        }
+
+        StringBuilder result = new StringBuilder();
+
+        for (Forecast forecast : forecasts) {
+
+            result.append("Forecast ID: ")
+                    .append(forecast.getId())
+                    .append(", Predicted Demand: ")
+                    .append(forecast.getPredictedDemand())
+                    .append(", Forecast Date: ")
+                    .append(forecast.getForecastDate())
+                    .append(", Forecast Period: ")
+                    .append(forecast.getForecastPeriod())
+                    .append("\n");
+        }
+
+        return ResponseEntity.ok(result.toString());
     }
 
 }

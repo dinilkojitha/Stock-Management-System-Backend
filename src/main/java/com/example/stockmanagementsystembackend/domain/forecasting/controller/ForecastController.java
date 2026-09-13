@@ -22,4 +22,12 @@ public class ForecastController {
     public ResponseEntity<String> createForecast(@RequestBody Forecast forecast) {
         return forecastService.createForecast(forecast);
     }
+
+    // Get all Forecasts
+    @GetMapping
+    public ResponseEntity<String> getAllForecasts() {
+
+        return forecastService.getAllForecasts();
+    }
+
 }
