@@ -1,12 +1,25 @@
 package com.example.stockmanagementsystembackend.domain.forecasting.controller;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.stockmanagementsystembackend.domain.forecasting.entity.Forecast;
+import com.example.stockmanagementsystembackend.domain.forecasting.service.ForecastService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 
 @CrossOrigin
 @RestController
-@RequestMapping(value = "/api/forecasts")
+@RequestMapping("/api/forecasts")
 public class ForecastController {
 
+    private final ForecastService forecastService;
+
+    public ForecastController(ForecastService forecastService) {
+        this.forecastService = forecastService;
+    }
+
+    // Create a forecast
+    @PostMapping
+    public ResponseEntity<String> createForecast(@RequestBody Forecast forecast) {
+        return forecastService.createForecast(forecast);
+    }
 }
