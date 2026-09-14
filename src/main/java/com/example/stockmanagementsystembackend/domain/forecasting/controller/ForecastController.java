@@ -16,5 +16,25 @@ public class ForecastController {
         this.forecastService = forecastService;
     }
 
+    // Calculate Forecast
+    @GetMapping("/calculate/{inventoryItemId}")
+    public ResponseEntity<String> calculateForecast(
+            @PathVariable Integer inventoryItemId,
+            @RequestParam(defaultValue = "Monthly")
+            String forecastPeriod) {
+
+        double predictedDemand =
+                forecastService.calculateForecast(
+                        inventoryItemId,
+                        forecastPeriod
+                );
+
+        return ResponseEntity.ok(
+                "Predicted demand for " +
+                        forecastPeriod +
+                        ": " +
+                        predictedDemand
+        );
+    }
 
 }
