@@ -1,6 +1,7 @@
 package com.example.stockmanagementsystembackend.domain.distribution.entity;
 
 import com.example.stockmanagementsystembackend.domain.inventory.entity.InventoryItem;
+import com.example.stockmanagementsystembackend.domain.stock.entity.StockTransferRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,10 +9,15 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "internal_request_items")
-public class InternalRequestItem {
+@Table(name = "branch_transfer_items")
+public class BranchTransferItem {
     @EmbeddedId
-    private InternalRequestItemId id;
+    private BranchTransferItemId id;
+
+    @MapsId("transferId")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "transfer_id", nullable = false)
+    private StockTransferRequest transfer;
 
     @MapsId("itemId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

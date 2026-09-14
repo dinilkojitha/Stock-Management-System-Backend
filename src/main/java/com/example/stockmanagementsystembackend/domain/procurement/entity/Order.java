@@ -17,29 +17,24 @@ import java.time.LocalDate;
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "orderID", nullable = false)
+    @Column(name = "purchase_order_id", nullable = false)
     private Integer id;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "User_userID", nullable = false)
-    private User userUserid;
+    @JoinColumn(name = "created_by_user_id", nullable = false)
+    private User createdByUser;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "Supplier_supplierID", nullable = false)
-    private Supplier supplierSupplierid;
-
-    @Column(name = "orderDate")
+    @Column(name = "order_date")
     private Instant orderDate;
 
-    @Column(name = "expectedDeliveryDate")
+    @Column(name = "expected_delivery_date")
     private LocalDate expectedDeliveryDate;
 
-    @Column(name = "actualDeliveryDate")
+    @Column(name = "actual_delivery_date")
     private LocalDate actualDeliveryDate;
 
-    @Column(name = "totalCost")
+    @Column(name = "total_cost")
     private Double totalCost;
 
     @Size(max = 45)
