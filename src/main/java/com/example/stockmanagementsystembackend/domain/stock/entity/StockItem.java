@@ -8,19 +8,19 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "stock_has_inventoryitem")
+@Table(name = "stock_items")
 public class StockItem {
     @EmbeddedId
     private StockItemId id;
 
-    @MapsId("stockBatchid")
+    @MapsId("stockId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "Stock_batchID", nullable = false)
-    private Stock stockBatchid;
+    @JoinColumn(name = "stock_id", nullable = false)
+    private Stock stock;
 
-    @MapsId("inventoryitemItemid")
+    @MapsId("itemId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "InventoryItem_itemId", nullable = false)
-    private InventoryItem inventoryitemItem;
+    @JoinColumn(name = "item_id", nullable = false)
+    private InventoryItem item;
 
 }

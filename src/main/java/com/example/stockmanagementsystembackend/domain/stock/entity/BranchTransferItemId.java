@@ -1,4 +1,4 @@
-package com.example.stockmanagementsystembackend.domain.distribution.entity;
+package com.example.stockmanagementsystembackend.domain.stock.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -14,7 +14,7 @@ import java.util.Objects;
 @Setter
 @Embeddable
 public class BranchTransferItemId implements Serializable {
-    private static final long serialVersionUID = -6877661383928676216L;
+    private static final long serialVersionUID = -4416770774850808495L;
     @NotNull
     @Column(name = "transfer_id", nullable = false)
     private Integer transferId;

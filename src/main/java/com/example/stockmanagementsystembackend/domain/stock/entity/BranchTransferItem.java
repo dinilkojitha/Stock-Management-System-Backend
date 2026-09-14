@@ -1,7 +1,6 @@
-package com.example.stockmanagementsystembackend.domain.distribution.entity;
+package com.example.stockmanagementsystembackend.domain.stock.entity;
 
 import com.example.stockmanagementsystembackend.domain.inventory.entity.InventoryItem;
-import com.example.stockmanagementsystembackend.domain.stock.entity.StockTransferRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +16,7 @@ public class BranchTransferItem {
     @MapsId("transferId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "transfer_id", nullable = false)
-    private StockTransferRequest transfer;
+    private Branchtransferrequest transfer;
 
     @MapsId("itemId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
