@@ -17,25 +17,25 @@ import java.time.Instant;
 public class Branchtransferrequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "TransferRequeastID", nullable = false)
+    @Column(name = "transfer_id", nullable = false)
     private Integer id;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "Branch_branchID", nullable = false)
-    private Branch branchBranchid;
+    @JoinColumn(name = "destination_branch_id", nullable = false)
+    private Branch destinationBranch;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "User_userID", nullable = false)
-    private User userUserid;
+    @JoinColumn(name = "requested_by_user_id", nullable = false)
+    private User requestedByUser;
 
-    @Column(name = "requestTime")
-    private Instant requestTime;
+    @Column(name = "requested_at")
+    private Instant requestedAt;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "Status_statusID", nullable = false)
-    private Status statusStatusid;
+    @JoinColumn(name = "status_id", nullable = false)
+    private Status status;
 
 }

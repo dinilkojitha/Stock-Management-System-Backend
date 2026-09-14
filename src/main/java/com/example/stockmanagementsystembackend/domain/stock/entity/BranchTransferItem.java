@@ -13,11 +13,6 @@ public class BranchTransferItem {
     @EmbeddedId
     private BranchTransferItemId id;
 
-    @MapsId("transferId")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "transfer_id", nullable = false)
-    private Branchtransferrequest transfer;
-
     @MapsId("itemId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "item_id", nullable = false)
