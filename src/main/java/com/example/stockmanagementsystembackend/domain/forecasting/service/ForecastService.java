@@ -46,7 +46,7 @@ public class ForecastService {
         InventoryItem inventoryItem = inventoryItemRepository.findById(itemId).orElse(null);
 
         if (inventoryItem == null) {
-            
+
             return ResponseEntity.badRequest().body("Inventory item not found");
         }
 
@@ -70,6 +70,46 @@ public class ForecastService {
         return ResponseEntity.ok(
                 "Forecast created successfully. " + "Predicted demand: " + predictedDemand
         );
+    }
+
+    // Get all Forecasts
+    public ResponseEntity<String> getAllForecasts() {
+
+        List<Forecast> forecasts = forecastRepository.findAll();
+
+        if (forecasts.isEmpty()) {
+
+            return ResponseEntity.ok(
+                    "No forecasts found"
+            );
+        }
+
+        StringBuilder result = new StringBuilder();
+
+        for (Forecast forecast : forecasts) {
+
+            result.append("Forecast ID: ")
+                    .append(forecast.getId())
+                    .append(", Item: ");
+
+            if (forecast.getInventoryitemItem() != null) {
+                result.append(
+                        forecast.getInventoryitemItem().getItemName()
+                );
+            } else {
+                result.append("N/A");
+            }
+
+            result.append(", Predicted Demand: ")
+                    .append(forecast.getPredictedDemand())
+                    .append(", Forecast Date: ")
+                    .append(forecast.getForecastDate())
+                    .append(", Forecast Period: ")
+                    .append(forecast.getForecastPeriod())
+                    .append("\n");
+        }
+
+        return ResponseEntity.ok(result.toString());
     }
 
 
