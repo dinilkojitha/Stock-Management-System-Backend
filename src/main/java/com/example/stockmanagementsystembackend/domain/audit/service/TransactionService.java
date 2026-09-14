@@ -16,8 +16,14 @@ public class TransactionService {
     @Autowired
     TransactionRepository transactionRepository;
 
+    //create
     public Transaction add (Transaction trans){
         return transactionRepository.save(trans);
+    }
+
+    // READ - Get all transactions
+    public List<Transaction> getAll() {
+        return transactionRepository.findAll();
     }
 }
 
