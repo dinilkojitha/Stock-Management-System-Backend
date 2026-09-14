@@ -1,4 +1,4 @@
-package com.example.stockmanagementsystembackend.domain.distribution.entity;
+package com.example.stockmanagementsystembackend.domain.stock.entity;
 
 import com.example.stockmanagementsystembackend.domain.inventory.entity.InventoryItem;
 import jakarta.persistence.*;
@@ -8,10 +8,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "internal_request_items")
-public class InternalRequestItem {
+@Table(name = "branch_transfer_items")
+public class BranchTransferItem {
     @EmbeddedId
-    private InternalRequestItemId id;
+    private BranchTransferItemId id;
 
     @MapsId("itemId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

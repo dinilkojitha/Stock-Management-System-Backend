@@ -12,12 +12,12 @@ import lombok.Setter;
 public class Branch {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "branchID", nullable = false)
+    @Column(name = "branchi_id", nullable = false)
     private Integer id;
 
     @Size(max = 45)
-    @Column(name = "branchName", length = 45)
-    private String branchName;
+    @Column(name = "name", length = 45)
+    private String name;
 
     @Size(max = 45)
     @Column(name = "location", length = 45)

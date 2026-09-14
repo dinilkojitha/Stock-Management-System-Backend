@@ -17,11 +17,11 @@ import java.time.Instant;
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "transactionID", nullable = false)
+    @Column(name = "transaction_id", nullable = false)
     private Integer id;
 
     @Size(max = 45)
-    @Column(name = "transactionType", length = 45)
+    @Column(name = "transaction_type", length = 45)
     private String transactionType;
 
     @NotNull
@@ -31,14 +31,14 @@ public class Transaction {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "InventoryItem_itemId", nullable = false)
-    private InventoryItem inventoryitemItem;
+    @JoinColumn(name = "item_id", nullable = false)
+    private InventoryItem item;
 
-    @Column(name = "transactionDate")
-    private Instant transactionDate;
+    @Column(name = "transacted_at")
+    private Instant transactedAt;
 
-    @Column(name = "quantityChanged")
-    private Double quantityChanged;
+    @Column(name = "quantity_delta")
+    private Double quantityDelta;
 
     @Size(max = 120)
     @Column(name = "remarks", length = 120)
