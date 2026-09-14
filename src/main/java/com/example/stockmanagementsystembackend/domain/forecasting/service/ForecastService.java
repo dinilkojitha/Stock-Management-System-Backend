@@ -32,7 +32,45 @@ public class ForecastService {
     }
 
     // Create Forecast method
+    public ResponseEntity<String> createForecast(Forecast forecast) {
 
+        // Check that an inventory item was supplied.
+        if (forecast.getInventoryitemItem() == null || forecast.getInventoryitemItem().getId() == null) {
+
+            return ResponseEntity.badRequest().body("Inventory item is required");
+        }
+
+        Integer itemId = forecast.getInventoryitemItem().getId();
+
+        // Get the complete inventory item from the database.
+        InventoryItem inventoryItem = inventoryItemRepository.findById(itemId).orElse(null);
+
+        if (inventoryItem == null) {
+            
+            return ResponseEntity.badRequest().body("Inventory item not found");
+        }
+
+        /*
+         Calculate the expected demand for the selected inventory item before saving the forecast.
+         */
+        double predictedDemand = calculateForecast(itemId, forecast.getForecastPeriod());
+
+        forecast.setPredictedDemand(predictedDemand);
+
+        // Use the complete InventoryItem entity.
+        forecast.setInventoryitemItem(inventoryItem);
+
+        // If no forecast date was supplied, use today's date.
+        if (forecast.getForecastDate() == null) {
+            forecast.setForecastDate(LocalDate.now());
+        }
+
+        forecastRepository.save(forecast);
+
+        return ResponseEntity.ok(
+                "Forecast created successfully. " + "Predicted demand: " + predictedDemand
+        );
+    }
 
 
     // Calculate Forecast method
@@ -50,8 +88,7 @@ public class ForecastService {
             Integer inventoryItemId,
             String forecastPeriod) {
 
-        List<Transaction> transactions =
-                transactionRepository.findAll();
+        List<Transaction> transactions = transactionRepository.findAll();
 
         double totalConsumed = 0.0;
 
@@ -60,81 +97,58 @@ public class ForecastService {
         for (Transaction transaction : transactions) {
 
             // Ignore transactions for other inventory items.
-            if (transaction.getInventoryitemItem() == null ||
-                    transaction.getInventoryitemItem().getId() == null) {
-
+            if (transaction.getInventoryitemItem() == null || transaction.getInventoryitemItem().getId() == null) {
                 continue;
             }
 
-            if (!transaction.getInventoryitemItem()
-                    .getId()
-                    .equals(inventoryItemId)) {
-
+            if (!transaction.getInventoryitemItem().getId().equals(inventoryItemId)) {
                 continue;
             }
 
             // Ignore transactions without a quantity.
             if (transaction.getQuantityChanged() == null) {
-
                 continue;
             }
 
             /*
-             * Negative quantity changes normally represent stock
-             * being removed/issued.
-             *
-             * Convert the negative value into positive consumption.
+              Negative quantity changes normally represent stock being removed/issued.
+              Convert the negative value into positive consumption.
              */
-            double quantity =
-                    transaction.getQuantityChanged();
+            double quantity = transaction.getQuantityChanged();
 
             if (quantity < 0) {
 
                 totalConsumed += Math.abs(quantity);
-
                 transactionCount++;
             }
 
             /*
-             * Some systems store stock-out quantities as positive.
-             * Therefore also recognise transaction types that
-             * indicate consumption/issuing.
+              Some systems store stock-out quantities as positive.
+              Therefore also recognize transaction types that indicate consumption/issuing.
              */
             else if (isConsumptionTransaction(transaction)) {
 
                 totalConsumed += quantity;
-
                 transactionCount++;
             }
         }
 
         /*
-         * If there is no transaction history, we cannot make a
-         * reliable historical demand forecast.
-         *
-         * Returning 0 prevents the system from inventing demand.
+         If there is no transaction history, we cannot make a reliable historical demand forecast.
+         Returning 0 prevents the system from inventing demand.
          */
         if (transactionCount == 0) {
-
             return 0.0;
         }
 
-        /*
-         * Average quantity consumed per transaction.
-         */
-        double averageConsumption =
-                totalConsumed / transactionCount;
+        // Average quantity consumed per transaction.
 
-        /*
-         * Convert the historical average into an estimated
-         * demand for the selected planning period.
-         *
-         * This is a simple planning forecast, not an AI model.
-         */
+        double averageConsumption = totalConsumed / transactionCount;
+
+        // Convert the historical average into an estimated demand for the selected planning period.
         double predictedDemand;
 
         if (forecastPeriod == null) {
-
             forecastPeriod = "Monthly";
         }
 
@@ -142,59 +156,40 @@ public class ForecastService {
 
             case "daily":
             case "day":
-
-                predictedDemand =
-                        averageConsumption;
-
+                predictedDemand = averageConsumption;
                 break;
 
             case "weekly":
             case "week":
-
-                predictedDemand =
-                        averageConsumption * 7;
-
+                predictedDemand = averageConsumption * 7;
                 break;
 
             case "monthly":
             case "month":
-
-                predictedDemand =
-                        averageConsumption * 30;
-
+                predictedDemand = averageConsumption * 30;
                 break;
 
             case "quarterly":
             case "quarter":
-
-                predictedDemand =
-                        averageConsumption * 90;
-
+                predictedDemand = averageConsumption * 90;
                 break;
 
             default:
-
                 // Default to monthly planning.
-                predictedDemand =
-                        averageConsumption * 30;
+                predictedDemand = averageConsumption * 30;
         }
 
         return round(predictedDemand);
     }
 
     // check whether transaction IsConsumption
-    private boolean isConsumptionTransaction(
-            Transaction transaction) {
+    private boolean isConsumptionTransaction(Transaction transaction) {
 
         if (transaction.getTransactionType() == null) {
-
             return false;
         }
 
-        String type =
-                transaction.getTransactionType()
-                        .trim()
-                        .toLowerCase();
+        String type = transaction.getTransactionType().trim().toLowerCase();
 
         return type.equals("stock out")
                 || type.equals("stock-out")
