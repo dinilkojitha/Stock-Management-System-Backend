@@ -35,13 +35,13 @@ public class InternalRequestController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateRequest(
-            @PathVariable Integer id,
+            @PathVariable("id") Integer id,
             @RequestBody InternalRequest request) {
         return ResponseEntity.ok(internalRequestService.updateRequest(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteRequest(@PathVariable Integer id) {
+    public ResponseEntity<?> deleteRequest(@PathVariable("id") Integer id) {
         internalRequestService.deleteRequest(id);
         return ResponseEntity.ok().build();
     }
