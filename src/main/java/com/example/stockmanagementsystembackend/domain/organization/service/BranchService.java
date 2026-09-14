@@ -82,16 +82,16 @@ public class BranchService {
     }
 
     private void apply(Branch branch, BranchRequest request) {
-        branch.setBranchName(request.getBranchName().trim());
+        branch.setName(request.getBranchName().trim());
         branch.setLocation(request.getLocation());
     }
 
     private BranchResponse response(Branch branch) {
-        return new BranchResponse(branch.getId(), branch.getBranchName(), branch.getLocation());
+        return new BranchResponse(branch.getId(), branch.getName(), branch.getLocation());
     }
 
     private BranchSummaryResponse summary(Branch branch) {
-        return new BranchSummaryResponse(branch.getId(), branch.getBranchName(), branch.getLocation(),
+        return new BranchSummaryResponse(branch.getId(), branch.getName(), branch.getLocation(),
                 stockRepository.findByBranchBranchid(branch).size(),
                 departmentRepository.findByBranchBranchid(branch).size());
     }

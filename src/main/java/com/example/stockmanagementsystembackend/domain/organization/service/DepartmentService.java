@@ -60,9 +60,9 @@ public class DepartmentService {
 	}
 
 	private void apply(Department d, DepartmentRequest r) {
-		d.setDepartmentName(r.getDepartmentName().trim());
+		d.setName(r.getDepartmentName().trim());
 		d.setLocation(r.getLocation());
-		d.setBranchBranchid(branch(r.getBranchId()));
+		d.setBranch(branch(r.getBranchId()));
 	}
 
 	private Branch branch(Integer id) {
@@ -76,8 +76,8 @@ public class DepartmentService {
 	}
 
 	private DepartmentResponse response(Department d) {
-		Branch b = d.getBranchBranchid();
-		return new DepartmentResponse(d.getId(), d.getDepartmentName(), d.getLocation(), b.getId(), b.getBranchName());
+		Branch b = d.getBranch();
+		return new DepartmentResponse(d.getId(), d.getName(), d.getLocation(), b.getId(), b.getName());
 	}
 
 }
