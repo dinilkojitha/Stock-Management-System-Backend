@@ -31,6 +31,16 @@ public class ForecastController {
         return forecastService.getAllForecasts();
     }
 
+    // Get one forecast
+    @GetMapping("/{id}")
+    public ResponseEntity<String> getForecastById(
+            @PathVariable Integer id) {
+
+        return forecastService.getForecastById(id);
+    }
+
+
+
     // Calculate Forecast
     @GetMapping("/calculate/{inventoryItemId}")
     public ResponseEntity<String> calculateForecast(

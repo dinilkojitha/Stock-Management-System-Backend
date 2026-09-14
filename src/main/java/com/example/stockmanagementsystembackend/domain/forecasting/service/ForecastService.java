@@ -112,6 +112,43 @@ public class ForecastService {
         return ResponseEntity.ok(result.toString());
     }
 
+    // Get one forecast
+    public ResponseEntity<String> getForecastById(Integer id) {
+
+        Forecast forecast =
+                forecastRepository.findById(id).orElse(null);
+
+        if (forecast == null) {
+
+            return ResponseEntity.notFound().build();
+        }
+
+        StringBuilder result = new StringBuilder();
+
+        result.append("Forecast ID: ")
+                .append(forecast.getId())
+                .append(", Item: ");
+
+        if (forecast.getInventoryitemItem() != null) {
+
+            result.append(
+                    forecast.getInventoryitemItem().getItemName()
+            );
+        } else {
+            result.append("N/A");
+        }
+
+        result.append(", Predicted Demand: ")
+                .append(forecast.getPredictedDemand())
+                .append(", Forecast Date: ")
+                .append(forecast.getForecastDate())
+                .append(", Forecast Period: ")
+                .append(forecast.getForecastPeriod());
+
+        return ResponseEntity.ok(result.toString());
+    }
+
+
 
     // Calculate Forecast method
     /* Calculates future demand using historical consumption.
