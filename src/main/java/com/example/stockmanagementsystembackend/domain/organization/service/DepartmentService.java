@@ -43,7 +43,7 @@ public class DepartmentService {
 
 	@Transactional(readOnly = true)
 	public List<DepartmentResponse> getDepartmentsByBranch(Integer id) {
-		return departmentRepository.findByBranchBranchid(branch(id)).stream().map(this::response).toList();
+		return departmentRepository.findByBranch(branch(id)).stream().map(this::response).toList();
 	}
 
 	public DepartmentResponse updateDepartment(Integer id, DepartmentRequest request) {
@@ -54,7 +54,7 @@ public class DepartmentService {
 
 	public void deleteDepartment(Integer id) {
 		Department d = find(id);
-		if (userRepository.countByDepartmentDepartment(d) > 0)
+		if (userRepository.countByDepartment(d) > 0)
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "Department has users and cannot be deleted");
 		departmentRepository.delete(d);
 	}
