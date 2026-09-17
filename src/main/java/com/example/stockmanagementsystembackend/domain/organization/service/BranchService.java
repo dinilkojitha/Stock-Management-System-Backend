@@ -53,7 +53,7 @@ public class BranchService {
 
     public void deleteBranch(Integer id) {
         Branch branch = find(id);
-        if (departmentRepository.existsByBranchBranchid(branch))
+        if (departmentRepository.existsByBranch(branch))
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Branch has departments and cannot be deleted");
         branchRepository.delete(branch);
     }
@@ -75,7 +75,7 @@ public class BranchService {
     }
 
     private void ensureUnique(String name, Integer id) {
-        branchRepository.findByBranchName(name).ifPresent(existing -> {
+        branchRepository.findByName(name).ifPresent(existing -> {
             if (!existing.getId().equals(id))
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Branch name already exists");
         });
@@ -92,8 +92,8 @@ public class BranchService {
 
     private BranchSummaryResponse summary(Branch branch) {
         return new BranchSummaryResponse(branch.getId(), branch.getName(), branch.getLocation(),
-                stockRepository.findByBranchBranchid(branch).size(),
-                departmentRepository.findByBranchBranchid(branch).size());
+                stockRepository.findByBranch(branch).size(),
+                departmentRepository.findByBranch(branch).size());
     }
 
     // public void deleteBranch(int id){
