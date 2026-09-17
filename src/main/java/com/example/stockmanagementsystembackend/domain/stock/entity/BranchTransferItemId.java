@@ -13,11 +13,11 @@ import java.util.Objects;
 @Getter
 @Setter
 @Embeddable
-public class StockItemId implements Serializable {
-    private static final long serialVersionUID = -6302149977593322743L;
+public class BranchTransferItemId implements Serializable {
+    private static final long serialVersionUID = -4416770774850808495L;
     @NotNull
-    @Column(name = "stock_id", nullable = false)
-    private Integer stockId;
+    @Column(name = "transfer_id", nullable = false)
+    private Integer transferId;
 
     @NotNull
     @Column(name = "item_id", nullable = false)
@@ -27,14 +27,14 @@ public class StockItemId implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        StockItemId entity = (StockItemId) o;
+        BranchTransferItemId entity = (BranchTransferItemId) o;
         return Objects.equals(this.itemId, entity.itemId) &&
-                Objects.equals(this.stockId, entity.stockId);
+                Objects.equals(this.transferId, entity.transferId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(itemId, stockId);
+        return Objects.hash(itemId, transferId);
     }
 
 }
