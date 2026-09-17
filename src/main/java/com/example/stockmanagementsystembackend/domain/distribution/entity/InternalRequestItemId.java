@@ -14,27 +14,27 @@ import java.util.Objects;
 @Setter
 @Embeddable
 public class InternalRequestItemId implements Serializable {
-    private static final long serialVersionUID = -4396363316600218611L;
+    private static final long serialVersionUID = -8926982748383201883L;
     @NotNull
-    @Column(name = "InternalRequest_ordertID", nullable = false)
-    private Integer internalrequestOrdertid;
+    @Column(name = "request_id", nullable = false)
+    private Integer requestId;
 
     @NotNull
-    @Column(name = "InventoryItem_itemId", nullable = false)
-    private Integer inventoryitemItemid;
+    @Column(name = "item_id", nullable = false)
+    private Integer itemId;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         InternalRequestItemId entity = (InternalRequestItemId) o;
-        return Objects.equals(this.inventoryitemItemid, entity.inventoryitemItemid) &&
-                Objects.equals(this.internalrequestOrdertid, entity.internalrequestOrdertid);
+        return Objects.equals(this.itemId, entity.itemId) &&
+                Objects.equals(this.requestId, entity.requestId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(inventoryitemItemid, internalrequestOrdertid);
+        return Objects.hash(itemId, requestId);
     }
 
 }

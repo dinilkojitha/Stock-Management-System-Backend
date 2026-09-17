@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface StockRepository extends JpaRepository<Stock, Integer> {
-	List<Stock> findByBranchBranchid(Branch branch);
+	List<Stock> findByBranch(Branch branch);
 }

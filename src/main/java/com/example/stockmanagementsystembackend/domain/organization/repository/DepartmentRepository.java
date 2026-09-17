@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface DepartmentRepository extends JpaRepository<Department, Integer> {
-	List<Department> findByBranchBranchid(Branch branch);
+	List<Department> findByBranch(Branch branch);
 
-	boolean existsByBranchBranchid(Branch branch);
+	boolean existsByBranch(Branch branch);
 }

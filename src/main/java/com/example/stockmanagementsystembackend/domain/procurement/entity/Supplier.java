@@ -12,15 +12,15 @@ import lombok.Setter;
 public class Supplier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "supplierID", nullable = false)
+    @Column(name = "supplier_id", nullable = false)
     private Integer id;
 
     @Size(max = 50)
-    @Column(name = "companyName", length = 50)
+    @Column(name = "company_name", length = 50)
     private String companyName;
 
     @Size(max = 50)
-    @Column(name = "contactPerson", length = 50)
+    @Column(name = "contact_person", length = 50)
     private String contactPerson;
 
     @Size(max = 60)
@@ -28,8 +28,8 @@ public class Supplier {
     private String email;
 
     @Size(max = 45)
-    @Column(name = "phone", length = 45)
-    private String phone;
+    @Column(name = "phone_number", length = 45)
+    private String phoneNumber;
 
     @Size(max = 100)
     @Column(name = "address", length = 100)

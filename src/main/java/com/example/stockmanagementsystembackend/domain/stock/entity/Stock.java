@@ -14,21 +14,21 @@ import java.time.LocalDate;
 @Table(name = "stock")
 public class Stock {
     @Id
-    @Column(name = "stockID", nullable = false)
+    @Column(name = "stock_id", nullable = false)
     private Integer id;
 
     @Column(name = "quantity")
     private Double quantity;
 
-    @Column(name = "manufactureDate")
+    @Column(name = "manufacture_date")
     private LocalDate manufactureDate;
 
-    @Column(name = "expiryDate")
+    @Column(name = "expiry_date")
     private LocalDate expiryDate;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "Branch_branchID", nullable = false)
-    private Branch branchBranchid;
+    @JoinColumn(name = "branch_id", nullable = false)
+    private Branch branch;
 
 }
