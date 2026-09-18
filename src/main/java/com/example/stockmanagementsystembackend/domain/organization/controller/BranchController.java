@@ -14,43 +14,41 @@ public class BranchController {
     @Autowired
     private BranchService branchService;
 
-    @PostMapping
-    public Object create(@Valid @RequestBody BranchRequest request) {
+    @PostMapping("/create")         // work
+    public Object create(@Valid @RequestBody BranchRequest request){
         return branchService.createBranch(request);
     }
 
-    @GetMapping
+    @GetMapping("/all")             // work
     public Object getAll() {
         return branchService.getAllBranches();
     }
 
-    @GetMapping("/overview")
+    @GetMapping("/overview")             // work
     public Object overview() {
         return branchService.getAllBranchesOverview();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}")             // work
     public Object get(@PathVariable Integer id) {
         return branchService.getBranchById(id);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")             // work
     public Object update(@PathVariable Integer id, @Valid @RequestBody BranchRequest request) {
         return branchService.updateBranch(id, request);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")             // work
     public void delete(@PathVariable Integer id) {
         branchService.deleteBranch(id);
     }
 
-    @GetMapping("/{id}/stock-summary")
+    @GetMapping("/stock-summary/{id}")             // work
     public Object stockSummary(@PathVariable Integer id) {
         return branchService.getBranchStockSummary(id);
     }
-    // @DeleteMapping
-    // public ResponseEntity<String> deleteBranch(@PathVariable int id){
-    // return branchService.deleteBranch(id);
-    // }
+
+
 
 }
