@@ -6,47 +6,50 @@ import com.example.stockmanagementsystembackend.domain.distribution.repository.I
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 @Service
 public class InternalRequestItemService {
 
     private final InternalRequestItemRepository internalRequestItemRepository;
 
-    public InternalRequestItemService(
-            InternalRequestItemRepository internalRequestItemRepository) {
+    public InternalRequestItemService(InternalRequestItemRepository internalRequestItemRepository) {
         this.internalRequestItemRepository = internalRequestItemRepository;
     }
 
-    public List<InternalRequestItem> getAllRequestItems() {
+    public List<InternalRequestItem> getAllItems() {
         return internalRequestItemRepository.findAll();
     }
 
-    public InternalRequestItem createRequestItem(
-            InternalRequestItem requestItem) {
-        return internalRequestItemRepository.save(requestItem);
+    public InternalRequestItem createItem(InternalRequestItem item) {
+        return internalRequestItemRepository.save(item);
     }
 
-    public InternalRequestItem updateRequestItem(
-            InternalRequestItemId id,
-            InternalRequestItem requestItem) {
+    public InternalRequestItem updateItem(
+            Integer requestId,
+            Integer itemId,
+            InternalRequestItem item) {
+
+        InternalRequestItemId id = new InternalRequestItemId();
+        id.setRequestId(requestId);
+        id.setItemId(itemId);
 
         InternalRequestItem existingItem =
                 internalRequestItemRepository.findById(id)
                         .orElseThrow(() ->
                                 new RuntimeException("Request item not found"));
 
-        existingItem.setInternalrequestOrdertid(
-                requestItem.getInternalrequestOrdertid());
-
-        existingItem.setInventoryitemItem(
-                requestItem.getInventoryitemItem());
-
-        existingItem.setQuantity(
-                requestItem.getQuantity());
+        existingItem.setItem(item.getItem());
+        existingItem.setQuantity(item.getQuantity());
 
         return internalRequestItemRepository.save(existingItem);
     }
 
-    public void deleteRequestItem(InternalRequestItemId id) {
+    public void deleteItem(Integer requestId, Integer itemId) {
+
+        InternalRequestItemId id = new InternalRequestItemId();
+        id.setRequestId(requestId);
+        id.setItemId(itemId);
+
         internalRequestItemRepository.deleteById(id);
     }
 }

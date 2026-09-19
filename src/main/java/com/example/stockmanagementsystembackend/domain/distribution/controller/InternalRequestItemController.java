@@ -1,65 +1,55 @@
 package com.example.stockmanagementsystembackend.domain.distribution.controller;
 
 import com.example.stockmanagementsystembackend.domain.distribution.entity.InternalRequestItem;
-import com.example.stockmanagementsystembackend.domain.distribution.entity.InternalRequestItemId;
 import com.example.stockmanagementsystembackend.domain.distribution.service.InternalRequestItemService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/internal-request-items")
+@CrossOrigin
 public class InternalRequestItemController {
 
     private final InternalRequestItemService internalRequestItemService;
 
-    public InternalRequestItemController(
-            InternalRequestItemService internalRequestItemService) {
+    public InternalRequestItemController(InternalRequestItemService internalRequestItemService) {
         this.internalRequestItemService = internalRequestItemService;
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllRequestItems() {
-        return ResponseEntity.ok(
-                internalRequestItemService.getAllRequestItems()
-        );
+    public ResponseEntity<List<InternalRequestItem>> getAllItems() {
+        return ResponseEntity.ok(internalRequestItemService.getAllItems());
     }
 
     @PostMapping
-    public ResponseEntity<?> createRequestItem(
-            @RequestBody InternalRequestItem requestItem) {
+    public ResponseEntity<InternalRequestItem> createItem(
+            @RequestBody InternalRequestItem item) {
 
         return ResponseEntity.ok(
-                internalRequestItemService.createRequestItem(requestItem)
+                internalRequestItemService.createItem(item)
         );
     }
 
     @PutMapping("/{requestId}/{itemId}")
-    public ResponseEntity<?> updateRequestItem(
+    public ResponseEntity<InternalRequestItem> updateItem(
             @PathVariable("requestId") Integer requestId,
             @PathVariable("itemId") Integer itemId,
-            @RequestBody InternalRequestItem requestItem) {
-
-        InternalRequestItemId id = new InternalRequestItemId();
-        id.setInternalrequestOrdertid(requestId);
-        id.setInventoryitemItemid(itemId);
+            @RequestBody InternalRequestItem item) {
 
         return ResponseEntity.ok(
-                internalRequestItemService.updateRequestItem(id, requestItem)
+                internalRequestItemService.updateItem(requestId, itemId, item)
         );
     }
 
     @DeleteMapping("/{requestId}/{itemId}")
-    public ResponseEntity<?> deleteRequestItem(
+    public ResponseEntity<Void> deleteItem(
             @PathVariable("requestId") Integer requestId,
             @PathVariable("itemId") Integer itemId) {
 
-        InternalRequestItemId id = new InternalRequestItemId();
-        id.setInternalrequestOrdertid(requestId);
-        id.setInventoryitemItemid(itemId);
+        internalRequestItemService.deleteItem(requestId, itemId);
 
-        internalRequestItemService.deleteRequestItem(id);
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }
