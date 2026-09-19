@@ -13,17 +13,17 @@ import lombok.Setter;
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "departmentId", nullable = false)
+    @Column(name = "department_id", nullable = false)
     private Integer id;
 
     @Size(max = 45)
-    @Column(name = "departmentName", length = 45)
-    private String departmentName;
+    @Column(name = "name", length = 45)
+    private String name;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "Branch_branchID", nullable = false)
-    private Branch branchBranchid;
+    @JoinColumn(name = "branch_id", nullable = false)
+    private Branch branch;
 
     @Size(max = 100)
     @Column(name = "location", length = 100)

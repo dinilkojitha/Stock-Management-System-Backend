@@ -3,7 +3,6 @@
  */
 package com.example.stockmanagementsystembackend.domain.distribution.service;
 
-import com.example.stockmanagementsystembackend.domain.distribution.repository.InternalRequestRepository;
 import org.springframework.stereotype.Service;
 import com.example.stockmanagementsystembackend.domain.distribution.entity.InternalRequest;
 import java.util.List;

@@ -14,17 +14,17 @@ import lombok.Setter;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "userID", nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Integer id;
 
     @Size(max = 150)
-    @Column(name = "fullName", length = 150)
+    @Column(name = "full_name", length = 150)
     private String fullName;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "role_roleID", nullable = false)
-    private Role roleRoleid;
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
     @Size(max = 60)
     @Column(name = "email", length = 60)
@@ -35,12 +35,12 @@ public class User {
     private String password;
 
     @Size(max = 45)
-    @Column(name = "phoneNumber", length = 45)
+    @Column(name = "phone_number", length = 45)
     private String phoneNumber;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "Department_departmentId", nullable = false)
-    private Department departmentDepartment;
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
 
 }

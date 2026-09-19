@@ -18,24 +18,24 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "internalrequest")
-public class InternalRequest {
+public class Internalrequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ordertID", nullable = false)
+    @Column(name = "request_id", nullable = false)
     private Integer id;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "Department_departmentId", nullable = false)
-    private Department departmentDepartment;
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "User_userID", nullable = false)
-    private User userUserid;
+    @JoinColumn(name = "requested_by_user_id", nullable = false)
+    private User requestedByUser;
 
-    @Column(name = "requestTime")
-    private Instant requestTime;
+    @Column(name = "requested_at")
+    private Instant requestedAt;
 
     @Size(max = 45)
     @Column(name = "status", length = 45)

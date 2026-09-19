@@ -14,29 +14,27 @@ import java.util.Objects;
 @Setter
 @Embeddable
 public class StockItemId implements Serializable {
-    private static final long serialVersionUID = 4452243352606810377L;
+    private static final long serialVersionUID = -6302149977593322743L;
     @NotNull
-    @Column(name = "Stock_batchID", nullable = false)
-    private Integer stockBatchid;
+    @Column(name = "stock_id", nullable = false)
+    private Integer stockId;
 
     @NotNull
-    @Column(name = "InventoryItem_itemId", nullable = false)
-    private Integer inventoryitemItemid;
+    @Column(name = "item_id", nullable = false)
+    private Integer itemId;
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o))
-            return false;
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         StockItemId entity = (StockItemId) o;
-        return Objects.equals(this.stockBatchid, entity.stockBatchid) &&
-                Objects.equals(this.inventoryitemItemid, entity.inventoryitemItemid);
+        return Objects.equals(this.itemId, entity.itemId) &&
+                Objects.equals(this.stockId, entity.stockId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(stockBatchid, inventoryitemItemid);
+        return Objects.hash(itemId, stockId);
     }
 
 }

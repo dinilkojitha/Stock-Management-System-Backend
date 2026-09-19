@@ -8,25 +8,25 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "order_has_inventoryitem")
-public class OrderItem {
+@Table(name = "purchase_order_items")
+public class PurchaseOrderItem {
     @EmbeddedId
-    private OrderItemId id;
+    private PurchaseOrderItemId id;
 
-    @MapsId("orderOrderid")
+    @MapsId("purchaseOrderId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "Order_orderID", nullable = false)
-    private Order orderOrderid;
+    @JoinColumn(name = "purchase_order_id", nullable = false)
+    private Order purchaseOrder;
 
-    @MapsId("inventoryitemItemid")
+    @MapsId("itemId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "InventoryItem_itemId", nullable = false)
-    private InventoryItem inventoryitemItem;
+    @JoinColumn(name = "item_id", nullable = false)
+    private InventoryItem item;
 
     @Column(name = "quantity")
     private Double quantity;
 
-    @Column(name = "purchasePrice")
-    private Double purchasePrice;
+    @Column(name = "unit_cost")
+    private Double unitCost;
 
 }

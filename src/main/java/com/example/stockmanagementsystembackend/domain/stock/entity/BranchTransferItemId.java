@@ -1,7 +1,4 @@
-/**
- * Embeddable composite primary key (internal_request_id + item_id) for InternalRequestItem.
- */
-package com.example.stockmanagementsystembackend.domain.distribution.entity;
+package com.example.stockmanagementsystembackend.domain.stock.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -16,11 +13,11 @@ import java.util.Objects;
 @Getter
 @Setter
 @Embeddable
-public class InternalRequestItemId implements Serializable {
-    private static final long serialVersionUID = -8926982748383201883L;
+public class BranchTransferItemId implements Serializable {
+    private static final long serialVersionUID = -4416770774850808495L;
     @NotNull
-    @Column(name = "request_id", nullable = false)
-    private Integer requestId;
+    @Column(name = "transfer_id", nullable = false)
+    private Integer transferId;
 
     @NotNull
     @Column(name = "item_id", nullable = false)
@@ -30,14 +27,14 @@ public class InternalRequestItemId implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        InternalRequestItemId entity = (InternalRequestItemId) o;
+        BranchTransferItemId entity = (BranchTransferItemId) o;
         return Objects.equals(this.itemId, entity.itemId) &&
-                Objects.equals(this.requestId, entity.requestId);
+                Objects.equals(this.transferId, entity.transferId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(itemId, requestId);
+        return Objects.hash(itemId, transferId);
     }
 
 }

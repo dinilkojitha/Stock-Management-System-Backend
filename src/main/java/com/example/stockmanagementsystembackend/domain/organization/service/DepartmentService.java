@@ -43,7 +43,7 @@ public class DepartmentService {
 
 	@Transactional(readOnly = true)
 	public List<DepartmentResponse> getDepartmentsByBranch(Integer id) {
-		return departmentRepository.findByBranchBranchid(branch(id)).stream().map(this::response).toList();
+		return departmentRepository.findByBranch(branch(id)).stream().map(this::response).toList();
 	}
 
 	public DepartmentResponse updateDepartment(Integer id, DepartmentRequest request) {
@@ -54,15 +54,15 @@ public class DepartmentService {
 
 	public void deleteDepartment(Integer id) {
 		Department d = find(id);
-		if (userRepository.countByDepartmentDepartment(d) > 0)
+		if (userRepository.countByDepartment(d) > 0)
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "Department has users and cannot be deleted");
 		departmentRepository.delete(d);
 	}
 
 	private void apply(Department d, DepartmentRequest r) {
-		d.setDepartmentName(r.getDepartmentName().trim());
+		d.setName(r.getDepartmentName().trim());
 		d.setLocation(r.getLocation());
-		d.setBranchBranchid(branch(r.getBranchId()));
+		d.setBranch(branch(r.getBranchId()));
 	}
 
 	private Branch branch(Integer id) {
@@ -76,8 +76,8 @@ public class DepartmentService {
 	}
 
 	private DepartmentResponse response(Department d) {
-		Branch b = d.getBranchBranchid();
-		return new DepartmentResponse(d.getId(), d.getDepartmentName(), d.getLocation(), b.getId(), b.getBranchName());
+		Branch b = d.getBranch();
+		return new DepartmentResponse(d.getId(), d.getName(), d.getLocation(), b.getId(), b.getName());
 	}
 
 }

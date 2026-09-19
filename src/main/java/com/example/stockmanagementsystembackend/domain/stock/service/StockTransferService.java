@@ -49,23 +49,22 @@ public class StockTransferService {
 				.orElseThrow(() -> notFound("User", request.getRequestedById()));
 		Status status = statusRepository.findById(request.getStatusId())
 				.orElseThrow(() -> notFound("Status", request.getStatusId()));
-		StockTransferRequest transfer = new StockTransferRequest();
-		transfer.setBranchBranchid(from);
-		transfer.setToBranchBranchid(to);
-		transfer.setUserUserid(user);
-		transfer.setStatusStatusid(status);
-		transfer.setRequestTime(Instant.now());
+		Branchtransferrequest transfer = new Branchtransferrequest();
+		transfer.setDestinationBranch(to);
+		transfer.setRequestedByUser(user);
+		transfer.setStatus(status);
+		transfer.setRequestedAt(Instant.now());
 		transfer = transferRepository.save(transfer);
 		for (TransferItemDto dto : request.getItems()) {
 			InventoryItem item = inventoryRepository.findById(dto.getInventoryItemId())
 					.orElseThrow(() -> notFound("Inventory item", dto.getInventoryItemId()));
-			StockTransferRequestItemId itemId = new StockTransferRequestItemId();
-			itemId.setBranchtransferrequeastOrderid(transfer.getId());
-			itemId.setInventoryitemItemid(item.getId());
-			StockTransferRequestItem transferItem = new StockTransferRequestItem();
+			BranchTransferItemId itemId = new BranchTransferItemId();
+			itemId.setTransferId(transfer.getId());
+			itemId.setItemId(item.getId());
+			BranchTransferItem transferItem = new BranchTransferItem();
 			transferItem.setId(itemId);
-			transferItem.setBranchtransferrequeastOrderid(transfer);
-			transferItem.setInventoryitemItem(item);
+			transferItem.setTransfer(transfer);
+			transferItem.setItem(item);
 			transferItem.setQuantity(dto.getQuantity());
 			itemRepository.save(transferItem);
 		}
@@ -85,10 +84,7 @@ public class StockTransferService {
 	@Transactional(readOnly = true)
 	public List<StockTransferResponse> getTransfersByBranch(Integer id) {
 		Branch branch = branch(id);
-		return java.util.stream.Stream
-				.concat(transferRepository.findByBranchBranchid(branch).stream(),
-						transferRepository.findByToBranchBranchid(branch).stream())
-				.map(this::response).toList();
+		return transferRepository.findByDestinationBranch(branch).stream().map(this::response).toList();
 	}
 
 	@Transactional
@@ -102,8 +98,8 @@ public class StockTransferService {
 	}
 
 	private StockTransferResponse process(Integer id, String target) {
-		StockTransferRequest transfer = find(id);
-		String current = transfer.getStatusStatusid().getName();
+		Branchtransferrequest transfer = find(id);
+		String current = transfer.getStatus().getName();
 		if ("Approved".equalsIgnoreCase(current) || "Rejected".equalsIgnoreCase(current))
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "Transfer has already been processed");
 		Status status = statusRepository.findByNameIgnoreCase(target).orElseGet(() -> {
@@ -111,11 +107,11 @@ public class StockTransferService {
 			created.setName(target);
 			return statusRepository.save(created);
 		});
-		transfer.setStatusStatusid(status);
+		transfer.setStatus(status);
 		return response(transferRepository.save(transfer));
 	}
 
-	private StockTransferRequest find(Integer id) {
+	private Branchtransferrequest find(Integer id) {
 		return transferRepository.findById(id).orElseThrow(() -> notFound("Transfer", id));
 	}
 
@@ -127,18 +123,19 @@ public class StockTransferService {
 		return new ResponseStatusException(HttpStatus.NOT_FOUND, type + " not found: " + id);
 	}
 
-	private StockTransferResponse response(StockTransferRequest transfer) {
-		Branch from = transfer.getBranchBranchid();
-		Branch to = transfer.getToBranchBranchid();
-		User user = transfer.getUserUserid();
-		Status status = transfer.getStatusStatusid();
-		List<TransferItemResponseDto> items = itemRepository.findByBranchtransferrequeastOrderidId(transfer.getId())
-				.stream().map(item -> new TransferItemResponseDto(item.getInventoryitemItem().getId(),
-						item.getInventoryitemItem().getItemName(), item.getQuantity()))
+	private StockTransferResponse response(Branchtransferrequest transfer) {
+		Integer fromBranchId = null;
+		String fromBranchName = null;
+		Branch to = transfer.getDestinationBranch();
+		User user = transfer.getRequestedByUser();
+		Status status = transfer.getStatus();
+		List<TransferItemResponseDto> items = itemRepository.findByIdTransferId(transfer.getId())
+				.stream().map(item -> new TransferItemResponseDto(item.getItem().getId(),
+						item.getItem().getItemName(), item.getQuantity()))
 				.toList();
-		return new StockTransferResponse(transfer.getId(), from.getId(), from.getBranchName(), to.getId(),
-				to.getBranchName(), user.getId(), user.getFullName(), status.getId(), status.getName(),
-				transfer.getRequestTime().toString(), items);
+		return new StockTransferResponse(transfer.getId(), fromBranchId, fromBranchName, to.getId(),
+				to.getName(), user.getId(), user.getFullName(), status.getId(), status.getName(),
+				transfer.getRequestedAt().toString(), items);
 	}
 
 }
