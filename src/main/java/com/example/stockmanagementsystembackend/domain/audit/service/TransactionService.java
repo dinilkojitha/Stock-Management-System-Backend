@@ -145,6 +145,13 @@ public class TransactionService {
         }
     }
 
+    // GET ALL TRANSACTIONS
+    @Transactional(readOnly = true)
+    public List<Transaction> getAllTransactions() {
+
+        return transactionRepository.findAll();
+    }
+
 
 
 

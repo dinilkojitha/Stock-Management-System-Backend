@@ -36,6 +36,16 @@ public class TransactionController {
         );
     }
 
+    // GET ALL
+    @GetMapping
+    public ResponseEntity<List<Transaction>> getAll() {
+
+        return ResponseEntity.ok(
+                transactionService.getAllTransactions()
+        );
+    }
+
+
 
 
 }
