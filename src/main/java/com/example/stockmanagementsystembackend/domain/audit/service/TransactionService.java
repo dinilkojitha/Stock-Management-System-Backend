@@ -322,6 +322,18 @@ public class TransactionService {
         }
     }
 
+    // VALIDATE ID
+    private void validateId(Integer id) {
+
+        if (id == null || id <= 0) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "ID must be greater than 0"
+            );
+        }
+    }
+
 
 
 
