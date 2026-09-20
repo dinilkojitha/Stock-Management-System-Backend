@@ -217,6 +217,27 @@ public class TransactionService {
         transactionRepository.delete(transaction);
     }
 
+    // GET TRANSACTIONS BY USER
+    @Transactional(readOnly = true)
+    public List<Transaction> getTransactionsByUser(
+            Integer userId
+    ) {
+
+        validateId(userId);
+
+        if (!userRepository.existsById(userId)) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "User with ID " + userId +
+                            " was not found"
+            );
+        }
+
+        return transactionRepository
+                .findByUserUseridId(userId);
+    }
+
 
 
 

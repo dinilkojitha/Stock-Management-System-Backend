@@ -82,6 +82,21 @@ public class TransactionController {
         return ResponseEntity.noContent().build();
     }
 
+    // GET BY USER
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Transaction>>
+    getByUser(
+            @PathVariable Integer userId
+    ) {
+
+        return ResponseEntity.ok(
+                transactionService
+                        .getTransactionsByUser(userId)
+        );
+    }
+
+
+
 
 
 
