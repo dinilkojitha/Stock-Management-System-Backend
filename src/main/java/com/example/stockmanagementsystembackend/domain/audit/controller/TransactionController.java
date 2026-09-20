@@ -21,5 +21,21 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
+    // CREATE
+    @PostMapping("/add-new")
+    public ResponseEntity<Transaction> add(
+            @RequestBody Transaction transaction
+    ) {
+
+        Transaction savedTransaction =
+                transactionService.addTransaction(transaction);
+
+        return new ResponseEntity<>(
+                savedTransaction,
+                HttpStatus.CREATED
+        );
+    }
+
+
 
 }
