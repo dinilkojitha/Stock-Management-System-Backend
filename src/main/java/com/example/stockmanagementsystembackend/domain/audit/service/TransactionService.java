@@ -2,28 +2,21 @@ package com.example.stockmanagementsystembackend.domain.audit.service;
 
 import com.example.stockmanagementsystembackend.domain.audit.entity.Transaction;
 import com.example.stockmanagementsystembackend.domain.audit.repository.TransactionRepository;
-import com.example.stockmanagementsystembackend.domain.audit.repository.TransactionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.stockmanagementsystembackend.domain.inventory.entity.InventoryItem;
+import com.example.stockmanagementsystembackend.domain.inventory.repository.InventoryItemRepository;
+import com.example.stockmanagementsystembackend.user.entity.User;
+import com.example.stockmanagementsystembackend.user.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 
 import java.time.Instant;
 import java.util.List;
 
-
 @Service
 public class TransactionService {
 
-    @Autowired
-    TransactionRepository transactionRepository;
 
-    //create
-    public Transaction add (Transaction trans){
-        return transactionRepository.save(trans);
-    }
-
-    // READ - Get all transactions
-    public List<Transaction> getAll() {
-        return transactionRepository.findAll();
-    }
 }
-
