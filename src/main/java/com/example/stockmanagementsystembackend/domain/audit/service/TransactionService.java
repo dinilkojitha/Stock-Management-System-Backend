@@ -200,6 +200,24 @@ public class TransactionService {
         return transactionRepository.save(existingTransaction);
     }
 
+    // DELETE TRANSACTION
+    @Transactional
+    public void deleteTransaction(Integer id) {
+
+        validateId(id);
+
+        Transaction transaction =
+                transactionRepository.findById(id)
+                        .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Transaction with ID " + id +
+                                        " was not found"
+                        ));
+
+        transactionRepository.delete(transaction);
+    }
+
+
 
 
 
