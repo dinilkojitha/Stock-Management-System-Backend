@@ -22,7 +22,7 @@ public class TransactionService {
     UserRepository userRepository;
     InventoryItemRepository inventoryItemRepository;
 
-    //constructor
+    //CONSTRUCTOR
     public TransactionService(
             TransactionRepository transactionRepository,
             UserRepository userRepository,
@@ -113,6 +113,94 @@ public class TransactionService {
                         "Transaction with ID " + id + " was not found"
                 ));
     }
+
+    // UPDATE TRANSACTION
+    @Transactional
+    public Transaction updateTransaction(
+            Integer id,
+            Transaction transaction
+    ) {
+
+        validateId(id);
+        validateTransaction(transaction);
+
+        Transaction existingTransaction =
+                transactionRepository.findById(id)
+                        .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Transaction with ID " + id +
+                                        " was not found"
+                        ));
+
+        // Check user
+        if (transaction.getUserUserid() == null ||
+                transaction.getUserUserid().getId() == null) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "User is required"
+            );
+        }
+
+        Integer userId = transaction.getUserUserid().getId();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "User with ID " + userId +
+                                " was not found"
+                ));
+
+
+        // Check inventory item
+        if (transaction.getItem() == null ||
+                transaction.getItem().getId() == null) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Inventory item is required"
+            );
+        }
+
+        Integer itemId = transaction.getItem().getId();
+
+        InventoryItem item =
+                inventoryItemRepository.findById(itemId)
+                        .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Inventory item with ID " + itemId +
+                                        " was not found"
+                        ));
+
+
+        existingTransaction.setTransactionType(
+                transaction.getTransactionType().trim()
+        );
+
+        existingTransaction.setUserUserid(user);
+
+        existingTransaction.setItem(item);
+
+        existingTransaction.setQuantityDelta(
+                transaction.getQuantityDelta()
+        );
+
+        existingTransaction.setRemarks(
+                transaction.getRemarks()
+        );
+
+        // Keep existing transaction time if no new time is provided
+        if (transaction.getTransactedAt() != null) {
+
+            existingTransaction.setTransactedAt(
+                    transaction.getTransactedAt()
+            );
+        }
+
+        return transactionRepository.save(existingTransaction);
+    }
+
+
 
 
 

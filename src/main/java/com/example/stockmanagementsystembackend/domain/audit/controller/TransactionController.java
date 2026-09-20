@@ -56,7 +56,22 @@ public class TransactionController {
         );
     }
 
-    // UPDATE TRANSACTION
+    // UPDATE
+    @PutMapping("/{id}")
+    public ResponseEntity<Transaction> update(
+            @PathVariable Integer id,
+            @RequestBody Transaction transaction
+    ) {
+
+        return ResponseEntity.ok(
+                transactionService.updateTransaction(
+                        id,
+                        transaction
+                )
+        );
+    }
+
+
 
 
 
