@@ -22,6 +22,17 @@ public class TransactionService {
     UserRepository userRepository;
     InventoryItemRepository inventoryItemRepository;
 
+    public TransactionService(
+            TransactionRepository transactionRepository,
+            UserRepository userRepository,
+            InventoryItemRepository inventoryItemRepository
+    ) {
+        this.transactionRepository = transactionRepository;
+        this.userRepository = userRepository;
+        this.inventoryItemRepository = inventoryItemRepository;
+    }
+
+
 
 
 }

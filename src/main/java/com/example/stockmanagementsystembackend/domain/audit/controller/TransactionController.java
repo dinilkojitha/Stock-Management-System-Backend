@@ -15,4 +15,11 @@ public class TransactionController {
 
     TransactionService transactionService;
 
+    public TransactionController(
+            TransactionService transactionService
+    ) {
+        this.transactionService = transactionService;
+    }
+
+
 }
