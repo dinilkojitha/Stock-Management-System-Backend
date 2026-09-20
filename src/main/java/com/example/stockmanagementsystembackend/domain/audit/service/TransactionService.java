@@ -18,5 +18,10 @@ import java.util.List;
 @Service
 public class TransactionService {
 
+    TransactionRepository transactionRepository;
+    UserRepository userRepository;
+    InventoryItemRepository inventoryItemRepository;
+
+
 
 }
