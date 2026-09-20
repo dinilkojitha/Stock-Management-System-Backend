@@ -93,6 +93,13 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
+    // GET ALL TRANSACTIONS
+    @Transactional(readOnly = true)
+    public List<Transaction> getAllTransactions() {
+
+        return transactionRepository.findAll();
+    }
+
 
     // GET TRANSACTION BY ID
     @Transactional(readOnly = true)
