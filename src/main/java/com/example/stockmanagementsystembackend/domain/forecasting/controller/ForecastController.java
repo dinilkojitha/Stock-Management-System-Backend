@@ -12,40 +12,21 @@ public class ForecastController {
 
     private final ForecastService forecastService;
 
-    public ForecastController(ForecastService forecastService) {
+    public ForecastController(
+            ForecastService forecastService) {
+
         this.forecastService = forecastService;
     }
 
-    // Create Forecast
-    @PostMapping
-    public ResponseEntity<String> createForecast(
-            @RequestBody Forecast forecast) {
+    // CREATE FORECAST
 
-        return forecastService.createForecast(forecast);
-    }
-
-    // Get all Forecasts
-    @GetMapping
-    public ResponseEntity<String> getAllForecasts() {
-
-        return forecastService.getAllForecasts();
-    }
-
-    // Get one forecast
-    @GetMapping("/{id}")
-    public ResponseEntity<String> getForecastById(
-            @PathVariable Integer id) {
-
-        return forecastService.getForecastById(id);
-    }
-
-
-
-    // Calculate Forecast
+    // CALCULATE FORECAST
     @GetMapping("/calculate/{inventoryItemId}")
     public ResponseEntity<String> calculateForecast(
             @PathVariable Integer inventoryItemId,
-            @RequestParam(defaultValue = "Monthly")
+            @RequestParam(
+                    defaultValue = "Monthly"
+            )
             String forecastPeriod) {
 
         double predictedDemand =
@@ -61,5 +42,7 @@ public class ForecastController {
                         predictedDemand
         );
     }
+
+
 
 }

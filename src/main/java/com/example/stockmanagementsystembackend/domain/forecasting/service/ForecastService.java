@@ -6,12 +6,13 @@ import com.example.stockmanagementsystembackend.domain.forecasting.entity.Foreca
 import com.example.stockmanagementsystembackend.domain.forecasting.repository.ForecastRepository;
 import com.example.stockmanagementsystembackend.domain.inventory.entity.InventoryItem;
 import com.example.stockmanagementsystembackend.domain.inventory.repository.InventoryItemRepository;
+import com.example.stockmanagementsystembackend.user.entity.User;
+import com.example.stockmanagementsystembackend.user.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -20,246 +21,181 @@ public class ForecastService {
     private final ForecastRepository forecastRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final TransactionRepository transactionRepository;
+    private final UserRepository userRepository;
 
     public ForecastService(
             ForecastRepository forecastRepository,
             InventoryItemRepository inventoryItemRepository,
-            TransactionRepository transactionRepository) {
+            TransactionRepository transactionRepository,
+            UserRepository userRepository) {
 
         this.forecastRepository = forecastRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.transactionRepository = transactionRepository;
+        this.userRepository = userRepository;
     }
 
-    // Create Forecast method
-    public ResponseEntity<String> createForecast(Forecast forecast) {
+    // CREATE FORECAST
 
-        // Check that an inventory item was supplied.
-        if (forecast.getInventoryitemItem() == null || forecast.getInventoryitemItem().getId() == null) {
+    // CALCULATE FORECAST
+     /* Calculates future demand using historical consumption data
+      * Historical period:
+      * Previous 30 days.
 
-            return ResponseEntity.badRequest().body("Inventory item is required");
-        }
+      * Formula:
+      * Total historical consumption
+      * --------------------------------
+      * Number of historical days = Average daily consumption
+      *
+      * Average daily consumption × Forecast period days = Predicted demand
+      */
 
-        Integer itemId = forecast.getInventoryitemItem().getId();
+    public double calculateForecast(Integer inventoryItemId, String forecastPeriod) {
 
-        // Get the complete inventory item from the database.
-        InventoryItem inventoryItem = inventoryItemRepository.findById(itemId).orElse(null);
+        InventoryItem inventoryItem =
+                inventoryItemRepository
+                        .findById(inventoryItemId)
+                        .orElse(null);
 
         if (inventoryItem == null) {
-
-            return ResponseEntity.badRequest().body("Inventory item not found");
-        }
-
-        /*
-         Calculate the expected demand for the selected inventory item before saving the forecast.
-         */
-        double predictedDemand = calculateForecast(itemId, forecast.getForecastPeriod());
-
-        forecast.setPredictedDemand(predictedDemand);
-
-        // Use the complete InventoryItem entity.
-        forecast.setInventoryitemItem(inventoryItem);
-
-        // If no forecast date was supplied, use today's date.
-        if (forecast.getForecastDate() == null) {
-            forecast.setForecastDate(LocalDate.now());
-        }
-
-        forecastRepository.save(forecast);
-
-        return ResponseEntity.ok(
-                "Forecast created successfully. " + "Predicted demand: " + predictedDemand
-        );
-    }
-
-    // Get all Forecasts
-    public ResponseEntity<String> getAllForecasts() {
-
-        List<Forecast> forecasts = forecastRepository.findAll();
-
-        if (forecasts.isEmpty()) {
-
-            return ResponseEntity.ok(
-                    "No forecasts found"
-            );
-        }
-
-        StringBuilder result = new StringBuilder();
-
-        for (Forecast forecast : forecasts) {
-
-            result.append("Forecast ID: ")
-                    .append(forecast.getId())
-                    .append(", Item: ");
-
-            if (forecast.getInventoryitemItem() != null) {
-                result.append(
-                        forecast.getInventoryitemItem().getItemName()
-                );
-            } else {
-                result.append("N/A");
-            }
-
-            result.append(", Predicted Demand: ")
-                    .append(forecast.getPredictedDemand())
-                    .append(", Forecast Date: ")
-                    .append(forecast.getForecastDate())
-                    .append(", Forecast Period: ")
-                    .append(forecast.getForecastPeriod())
-                    .append("\n");
-        }
-
-        return ResponseEntity.ok(result.toString());
-    }
-
-    // Get one forecast
-    public ResponseEntity<String> getForecastById(Integer id) {
-
-        Forecast forecast =
-                forecastRepository.findById(id).orElse(null);
-
-        if (forecast == null) {
-
-            return ResponseEntity.notFound().build();
-        }
-
-        StringBuilder result = new StringBuilder();
-
-        result.append("Forecast ID: ")
-                .append(forecast.getId())
-                .append(", Item: ");
-
-        if (forecast.getInventoryitemItem() != null) {
-
-            result.append(
-                    forecast.getInventoryitemItem().getItemName()
-            );
-        } else {
-            result.append("N/A");
-        }
-
-        result.append(", Predicted Demand: ")
-                .append(forecast.getPredictedDemand())
-                .append(", Forecast Date: ")
-                .append(forecast.getForecastDate())
-                .append(", Forecast Period: ")
-                .append(forecast.getForecastPeriod());
-
-        return ResponseEntity.ok(result.toString());
-    }
-
-
-
-    // Calculate Forecast method
-    /* Calculates future demand using historical consumption.
-
-       The calculation:
-       1. Finds transactions belonging to the inventory item.
-       2. Considers stock-out/consumption transactions
-       3. Calculates average daily consumption
-       4. Converts the daily consumption into the requested forecast period.
-
-     */
-
-    public double calculateForecast(
-            Integer inventoryItemId,
-            String forecastPeriod) {
-
-        List<Transaction> transactions = transactionRepository.findAll();
-
-        double totalConsumed = 0.0;
-
-        int transactionCount = 0;
-
-        for (Transaction transaction : transactions) {
-
-            // Ignore transactions for other inventory items.
-            if (transaction.getInventoryitemItem() == null || transaction.getInventoryitemItem().getId() == null) {
-                continue;
-            }
-
-            if (!transaction.getInventoryitemItem().getId().equals(inventoryItemId)) {
-                continue;
-            }
-
-            // Ignore transactions without a quantity.
-            if (transaction.getQuantityChanged() == null) {
-                continue;
-            }
-
-            /*
-              Negative quantity changes normally represent stock being removed/issued.
-              Convert the negative value into positive consumption.
-             */
-            double quantity = transaction.getQuantityChanged();
-
-            if (quantity < 0) {
-
-                totalConsumed += Math.abs(quantity);
-                transactionCount++;
-            }
-
-            /*
-              Some systems store stock-out quantities as positive.
-              Therefore also recognize transaction types that indicate consumption/issuing.
-             */
-            else if (isConsumptionTransaction(transaction)) {
-
-                totalConsumed += quantity;
-                transactionCount++;
-            }
-        }
-
-        /*
-         If there is no transaction history, we cannot make a reliable historical demand forecast.
-         Returning 0 prevents the system from inventing demand.
-         */
-        if (transactionCount == 0) {
             return 0.0;
         }
 
-        // Average quantity consumed per transaction.
+        // Look at the previous 30 days.
+        int historicalDays = 30;
 
-        double averageConsumption = totalConsumed / transactionCount;
+        Instant endDate = Instant.now();
 
-        // Convert the historical average into an estimated demand for the selected planning period.
-        double predictedDemand;
+        Instant startDate = endDate.minus(historicalDays, ChronoUnit.DAYS);
 
-        if (forecastPeriod == null) {
-            forecastPeriod = "Monthly";
+        List<Transaction> transactions = transactionRepository.findAll();
+
+        double totalConsumption = 0.0;
+
+        for (Transaction transaction : transactions) {
+
+            // Ignore transactions without an item.
+            if (transaction.getItem() == null) {
+                continue;
+            }
+
+            // Only use transactions for the selected item.
+            if (!transaction.getItem()
+                    .getId()
+                    .equals(inventoryItemId)) {
+                continue;
+            }
+
+            // Ignore transactions without a date.
+            if (transaction.getTransactedAt() == null) {
+                continue;
+            }
+
+            // Only use transactions from the last 30 days.
+            if (transaction.getTransactedAt()
+                    .isBefore(startDate)
+                    ||
+                    transaction.getTransactedAt()
+                            .isAfter(endDate)) {
+
+                continue;
+            }
+
+            // Ignore transactions without quantity.
+            if (transaction.getQuantityDelta() == null) {
+                continue;
+            }
+
+            /*
+             * Wastage is not normal consumption.
+             * Therefore do not include it in demand.
+             */
+            if (isWastageTransaction(transaction)) {
+                continue;
+            }
+
+            double quantity = transaction.getQuantityDelta();
+
+            /*
+             * If quantityDelta is negative,
+             * stock was removed.
+             *
+             * Example:
+             *
+             * -10 kg tomatoes
+             *
+             * means 10 kg was consumed/issued.
+             */
+            if (quantity < 0) {
+                totalConsumption += Math.abs(quantity);
+            }
+
+            /*
+             * Some systems may store consumption
+             * as a positive number and use the
+             * transaction type to identify it.
+             */
+            else if (quantity > 0 &&
+                    isConsumptionTransaction(
+                            transaction)) {
+
+                totalConsumption += quantity;
+            }
         }
 
-        switch (forecastPeriod.toLowerCase()) {
-
-            case "daily":
-            case "day":
-                predictedDemand = averageConsumption;
-                break;
-
-            case "weekly":
-            case "week":
-                predictedDemand = averageConsumption * 7;
-                break;
-
-            case "monthly":
-            case "month":
-                predictedDemand = averageConsumption * 30;
-                break;
-
-            case "quarterly":
-            case "quarter":
-                predictedDemand = averageConsumption * 90;
-                break;
-
-            default:
-                // Default to monthly planning.
-                predictedDemand = averageConsumption * 30;
+        /*
+         * If there is no consumption history,
+         * do not invent a demand value.
+         */
+        if (totalConsumption <= 0) {
+            return 0.0;
         }
+
+        // Calculate average daily consumption.
+        double averageDailyConsumption = totalConsumption / historicalDays;
+
+        // Determine the requested forecast period.
+        int forecastDays = getForecastDays(forecastPeriod);
+
+        // Calculate future demand.
+        double predictedDemand = averageDailyConsumption * forecastDays;
 
         return round(predictedDemand);
     }
 
-    // check whether transaction IsConsumption
+    // GET FORECAST PERIOD DAYS
+    private int getForecastDays(String forecastPeriod) {
+
+        if (forecastPeriod == null || forecastPeriod.isBlank()) {
+            return 30;
+        }
+
+        switch (
+                forecastPeriod.trim().toLowerCase()
+        ) {
+
+            case "daily":
+            case "day":
+                return 1;
+
+            case "weekly":
+            case "week":
+                return 7;
+
+            case "monthly":
+            case "month":
+                return 30;
+
+            case "quarterly":
+            case "quarter":
+                return 90;
+
+            default:
+                return 30;
+        }
+    }
+
+    // CHECK CONSUMPTION TRANSACTION
     private boolean isConsumptionTransaction(Transaction transaction) {
 
         if (transaction.getTransactionType() == null) {
@@ -277,10 +213,25 @@ public class ForecastService {
                 || type.equals("consume");
     }
 
+    // CHECK WASTAGE TRANSACTION
+    private boolean isWastageTransaction(Transaction transaction) {
 
-    // round method necessary for calculating forecasts
+        if (transaction.getTransactionType() == null) {
+            return false;
+        }
+
+        String type = transaction.getTransactionType().trim().toLowerCase();
+
+        return type.equals("waste")
+                || type.equals("wastage")
+                || type.equals("expired")
+                || type.equals("damaged")
+                || type.equals("spoiled")
+                || type.equals("spoilage");
+    }
+
+    // ROUND VALUES
     private double round(double value) {
-
         return Math.round(value * 100.0) / 100.0;
     }
 
