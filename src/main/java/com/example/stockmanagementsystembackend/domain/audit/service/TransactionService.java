@@ -259,6 +259,69 @@ public class TransactionService {
                 );
     }
 
+    // VALIDATE TRANSACTION
+    private void validateTransaction(Transaction transaction) {
+
+        if (transaction == null) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Transaction data is required"
+            );
+        }
+
+        if (transaction.getTransactionType() == null ||
+                transaction.getTransactionType().trim().isEmpty()) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Transaction type is required"
+            );
+        }
+
+        if (transaction.getTransactionType().length() > 45) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Transaction type must not exceed 45 characters"
+            );
+        }
+
+        if (transaction.getQuantityDelta() == null) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Quantity change is required"
+            );
+        }
+
+        if (transaction.getQuantityDelta().isNaN() ||
+                transaction.getQuantityDelta().isInfinite()) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Quantity must be a valid number"
+            );
+        }
+
+        if (transaction.getQuantityDelta() == 0) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Quantity change cannot be zero"
+            );
+        }
+
+        if (transaction.getRemarks() != null &&
+                transaction.getRemarks().length() > 120) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Remarks must not exceed 120 characters"
+            );
+        }
+    }
+
 
 
 
