@@ -238,6 +238,28 @@ public class TransactionService {
                 .findByUserUseridId(userId);
     }
 
+    // GET TRANSACTIONS BY TYPE
+    @Transactional(readOnly = true)
+    public List<Transaction> getTransactionsByType(
+            String transactionType
+    ) {
+
+        if (transactionType == null ||
+                transactionType.trim().isEmpty()) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Transaction type is required"
+            );
+        }
+
+        return transactionRepository
+                .findByTransactionTypeIgnoreCase(
+                        transactionType.trim()
+                );
+    }
+
+
 
 
 

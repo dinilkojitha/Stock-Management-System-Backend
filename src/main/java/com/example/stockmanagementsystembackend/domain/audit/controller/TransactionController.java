@@ -95,6 +95,18 @@ public class TransactionController {
         );
     }
 
+    @GetMapping("/type/{transactionType}")
+    public ResponseEntity<List<Transaction>>
+    getByType(
+            @PathVariable String transactionType
+    ) {
+
+        return ResponseEntity.ok(
+                transactionService
+                        .getTransactionsByType(transactionType)
+        );
+    }
+
 
 
 
