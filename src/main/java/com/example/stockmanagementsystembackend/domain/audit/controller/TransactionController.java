@@ -45,6 +45,17 @@ public class TransactionController {
         );
     }
 
+    // GET BY ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Transaction> getById(
+            @PathVariable Integer id
+    ) {
+
+        return ResponseEntity.ok(
+                transactionService.getTransactionById(id)
+        );
+    }
+
 
 
 

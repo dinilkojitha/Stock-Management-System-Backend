@@ -93,63 +93,18 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-    private void validateTransaction(Transaction transaction) {
 
-        if (transaction == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Transaction data is required"
-            );
-        }
-
-        if (transaction.getTransactionType() == null ||
-                transaction.getTransactionType().trim().isEmpty()) {
-
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Transaction type is required"
-            );
-        }
-
-        if (transaction.getTransactionType().trim().length() > 45) {
-
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Transaction type must not exceed 45 characters"
-            );
-        }
-
-        if (transaction.getQuantityDelta() == null) {
-
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Quantity change is required"
-            );
-        }
-
-        if (transaction.getQuantityDelta() == 0) {
-
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Quantity change cannot be zero"
-            );
-        }
-
-        if (transaction.getRemarks() != null &&
-                transaction.getRemarks().length() > 120) {
-
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Remarks must not exceed 120 characters"
-            );
-        }
-    }
-
-    // GET ALL TRANSACTIONS
+    // GET TRANSACTION BY ID
     @Transactional(readOnly = true)
-    public List<Transaction> getAllTransactions() {
+    public Transaction getTransactionById(Integer id) {
 
-        return transactionRepository.findAll();
+        validateId(id);
+
+        return transactionRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Transaction with ID " + id + " was not found"
+                ));
     }
 
 
