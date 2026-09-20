@@ -234,8 +234,12 @@ public class TransactionService {
             );
         }
 
-        return transactionRepository
-                .findByUserUseridId(userId);
+        return transactionRepository.findAll()
+                .stream()
+                .filter(t -> t.getUserUserid() != null
+                        && t.getUserUserid().getId() != null
+                        && t.getUserUserid().getId().equals(userId))
+                .toList();
     }
 
     // GET TRANSACTIONS BY TYPE
@@ -253,10 +257,12 @@ public class TransactionService {
             );
         }
 
-        return transactionRepository
-                .findByTransactionTypeIgnoreCase(
-                        transactionType.trim()
-                );
+        return transactionRepository.findAll()
+                .stream()
+                .filter(t -> t.getTransactionType() != null
+                        && t.getTransactionType()
+                        .equalsIgnoreCase(transactionType.trim()))
+                .toList();
     }
 
     // VALIDATE TRANSACTION
