@@ -133,4 +133,23 @@ public class ForecastController {
                 );
     }
 
+    // RECORD WASTAGE
+    @PostMapping("/wastage/{inventoryItemId}")
+    public ResponseEntity<String> recordWastage(
+            @PathVariable Integer inventoryItemId,
+            @RequestParam Integer userId,
+            @RequestParam Double quantity,
+            @RequestParam(
+                    required = false
+            )
+            String reason) {
+
+        return forecastService.recordWastage(
+                inventoryItemId,
+                userId,
+                quantity,
+                reason
+        );
+    }
+
 }

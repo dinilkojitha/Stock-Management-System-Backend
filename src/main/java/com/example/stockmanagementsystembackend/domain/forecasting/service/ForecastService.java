@@ -602,6 +602,129 @@ public class ForecastService {
         return ResponseEntity.ok(result);
     }
 
+    // RECORD WASTAGE
+    /* Wastage is stored using the existing Transaction entity.
+     * Example:
+     * Hotel throws away 8 kg of spoiled tomatoes.
+     * transactionType = WASTAGE
+     * quantityDelta = -8
+     * remarks = Spoiled tomatoes
+
+     * The existing transaction table therefore becomes the source for wastage analysis.
+     */
+    public ResponseEntity<String> recordWastage(
+            Integer inventoryItemId,
+            Integer userId,
+            Double quantity,
+            String reason) {
+
+        if (quantity == null ||
+                quantity <= 0) {
+
+            return ResponseEntity.badRequest()
+                    .body(
+                            "Wastage quantity must be greater than zero"
+                    );
+        }
+
+        InventoryItem inventoryItem =
+                inventoryItemRepository
+                        .findById(inventoryItemId)
+                        .orElse(null);
+
+        if (inventoryItem == null) {
+
+            return ResponseEntity.badRequest()
+                    .body(
+                            "Inventory item not found"
+                    );
+        }
+
+        User user =
+                userRepository
+                        .findById(userId)
+                        .orElse(null);
+
+        if (user == null) {
+
+            return ResponseEntity.badRequest()
+                    .body(
+                            "User not found"
+                    );
+        }
+
+        double currentStock =
+                inventoryItem.getTotalQuantity() != null
+                        ? inventoryItem.getTotalQuantity()
+                        : 0.0;
+
+        /*
+         * Prevent recording more wastage than
+         * the currently available stock.
+         */
+        if (quantity > currentStock) {
+
+            return ResponseEntity.badRequest()
+                    .body(
+                            "Wastage quantity cannot exceed current stock"
+                    );
+        }
+
+        Transaction transaction =
+                new Transaction();
+
+        transaction.setItem(
+                inventoryItem
+        );
+
+        transaction.setUserUserid(
+                user
+        );
+
+        transaction.setTransactionType(
+                "WASTAGE"
+        );
+
+        /*
+         * Wastage removes stock,
+         * therefore quantityDelta is negative.
+         */
+        transaction.setQuantityDelta(
+                -quantity
+        );
+
+        transaction.setTransactedAt(
+                Instant.now()
+        );
+
+        transaction.setRemarks(
+                reason
+        );
+
+        transactionRepository.save(
+                transaction
+        );
+
+        /*
+         * Update the inventory quantity
+         * after recording the wastage.
+         */
+        inventoryItem.setTotalQuantity(
+                currentStock - quantity
+        );
+
+        inventoryItemRepository.save(
+                inventoryItem
+        );
+
+        return ResponseEntity.ok(
+                "Wastage recorded successfully. " +
+                        "Wasted quantity: " +
+                        round(quantity)
+        );
+    }
+
+
     // ROUND VALUES
     private double round(double value) {
         return Math.round(value * 100.0) / 100.0;
