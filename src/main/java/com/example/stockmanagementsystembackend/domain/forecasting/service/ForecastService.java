@@ -36,6 +36,68 @@ public class ForecastService {
     }
 
     // CREATE FORECAST
+    public ResponseEntity<String> createForecast(Forecast forecast) {
+
+        if (forecast == null) {
+            return ResponseEntity.badRequest()
+                    .body("Forecast data is required");
+        }
+
+        if (forecast.getItem() == null ||
+                forecast.getItem().getId() == null) {
+
+            return ResponseEntity.badRequest()
+                    .body("Inventory item is required");
+        }
+
+        Integer itemId = forecast.getItem().getId();
+
+        InventoryItem inventoryItem =
+                inventoryItemRepository
+                        .findById(itemId)
+                        .orElse(null);
+
+        if (inventoryItem == null) {
+
+            return ResponseEntity.badRequest()
+                    .body("Inventory item not found");
+        }
+
+        String forecastPeriod =
+                forecast.getForecastPeriod();
+
+        if (forecastPeriod == null ||
+                forecastPeriod.isBlank()) {
+
+            forecastPeriod = "Monthly";
+            forecast.setForecastPeriod(forecastPeriod);
+        }
+
+        double predictedDemand =
+                calculateForecast(
+                        itemId,
+                        forecastPeriod
+                );
+
+        forecast.setItem(inventoryItem);
+        forecast.setPredictedDemand(predictedDemand);
+
+        if (forecast.getForecastDate() == null) {
+
+            forecast.setForecastDate(
+                    java.time.LocalDate.now()
+            );
+        }
+
+        forecastRepository.save(forecast);
+
+        return ResponseEntity.ok(
+                "Forecast created successfully. " +
+                        "Predicted demand: " +
+                        predictedDemand
+        );
+    }
+
 
     // CALCULATE FORECAST
      /* Calculates future demand using historical consumption data

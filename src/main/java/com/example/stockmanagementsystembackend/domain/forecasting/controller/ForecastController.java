@@ -19,6 +19,15 @@ public class ForecastController {
     }
 
     // CREATE FORECAST
+    @PostMapping
+    public ResponseEntity<String> createForecast(
+            @RequestBody Forecast forecast) {
+
+        return forecastService.createForecast(
+                forecast
+        );
+    }
+
 
     // CALCULATE FORECAST
     @GetMapping("/calculate/{inventoryItemId}")
