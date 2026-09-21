@@ -724,6 +724,92 @@ public class ForecastService {
         );
     }
 
+    // GET WASTAGE HISTORY
+    public ResponseEntity<String> getWastage(
+            Integer inventoryItemId) {
+
+        InventoryItem inventoryItem =
+                inventoryItemRepository
+                        .findById(inventoryItemId)
+                        .orElse(null);
+
+        if (inventoryItem == null) {
+
+            return ResponseEntity.badRequest()
+                    .body(
+                            "Inventory item not found"
+                    );
+        }
+
+        List<Transaction> transactions =
+                transactionRepository.findAll();
+
+        double totalWastage = 0.0;
+
+        StringBuilder result =
+                new StringBuilder();
+
+        result.append(
+                "Wastage report for "
+        ).append(
+                inventoryItem.getItemName()
+        ).append("\n");
+
+        for (Transaction transaction :
+                transactions) {
+
+            if (transaction.getItem() == null) {
+                continue;
+            }
+
+            if (!transaction.getItem()
+                    .getId()
+                    .equals(inventoryItemId)) {
+
+                continue;
+            }
+
+            if (!isWastageTransaction(
+                    transaction)) {
+
+                continue;
+            }
+
+            double quantity =
+                    transaction.getQuantityDelta() != null
+                            ? Math.abs(
+                            transaction.getQuantityDelta()
+                    )
+                            : 0.0;
+
+            totalWastage += quantity;
+
+            result.append(
+                    "Date: "
+            ).append(
+                    transaction.getTransactedAt()
+            ).append(
+                    ", Quantity: "
+            ).append(
+                    round(quantity)
+            ).append(
+                    ", Reason: "
+            ).append(
+                    transaction.getRemarks()
+            ).append("\n");
+        }
+
+        result.append(
+                "Total Wastage: "
+        ).append(
+                round(totalWastage)
+        );
+
+        return ResponseEntity.ok(
+                result.toString()
+        );
+    }
+
 
     // ROUND VALUES
     private double round(double value) {

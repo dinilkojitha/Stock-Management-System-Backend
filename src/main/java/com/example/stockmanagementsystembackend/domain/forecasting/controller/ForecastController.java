@@ -152,4 +152,14 @@ public class ForecastController {
         );
     }
 
+    // GET WASTAGE HISTORY
+    @GetMapping("/wastage/{inventoryItemId}")
+    public ResponseEntity<String> getWastage(
+            @PathVariable Integer inventoryItemId) {
+
+        return forecastService.getWastage(
+                inventoryItemId
+        );
+    }
+
 }
