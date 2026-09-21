@@ -6,9 +6,15 @@ import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 import org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import java.time.Clock;
 
 @Configuration
 public class InventoryJpaConfig {
+    @Bean
+    public Clock stockBatchClock() {
+        return Clock.systemDefaultZone();
+    }
+
     @Bean
     public HibernatePropertiesCustomizer inventoryTableNames() {
         // Preserve the supplied inventory schema names. All other identifiers use
@@ -20,7 +26,7 @@ public class InventoryJpaConfig {
         @Override
         public Identifier toPhysicalTableName(Identifier name, JdbcEnvironment environment) {
             if (name != null && switch (name.getText()) {
-                case "InventoryItem", "Category", "UnitType" -> true;
+                case "InventoryItem", "Category", "UnitType", "Stock", "Branch" -> true;
                 default -> false;
             }) {
                 return Identifier.toIdentifier(name.getText(), true);

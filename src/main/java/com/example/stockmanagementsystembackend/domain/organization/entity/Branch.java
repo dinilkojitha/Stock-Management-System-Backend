@@ -8,11 +8,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "branch")
+@Table(name = "Branch")
 public class Branch {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "branchi_id", nullable = false)
+    @Column(name = "branch_id", nullable = false)
     private Integer id;
 
     @Size(max = 45)
