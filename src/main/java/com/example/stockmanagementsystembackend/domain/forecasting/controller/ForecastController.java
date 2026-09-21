@@ -28,6 +28,13 @@ public class ForecastController {
         );
     }
 
+    // GET ALL FORECASTS
+    @GetMapping
+    public ResponseEntity<String> getAllForecasts() {
+
+        return forecastService.getAllForecasts();
+    }
+
 
     // CALCULATE FORECAST
     @GetMapping("/calculate/{inventoryItemId}")
