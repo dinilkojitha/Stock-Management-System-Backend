@@ -57,6 +57,17 @@ public class ForecastController {
         );
     }
 
+    // DELETE FORECAST
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteForecast(
+            @PathVariable Integer id) {
+
+        return forecastService.deleteForecast(
+                id
+        );
+    }
+
+
     // CALCULATE FORECAST
     @GetMapping("/calculate/{inventoryItemId}")
     public ResponseEntity<String> calculateForecast(

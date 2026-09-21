@@ -273,6 +273,23 @@ public class ForecastService {
         );
     }
 
+    // DELETE FORECAST
+    public ResponseEntity<String> deleteForecast(
+            Integer id) {
+
+        if (!forecastRepository.existsById(id)) {
+
+            return ResponseEntity.notFound()
+                    .build();
+        }
+
+        forecastRepository.deleteById(id);
+
+        return ResponseEntity.ok(
+                "Forecast deleted successfully"
+        );
+    }
+
 
     // CALCULATE FORECAST
      /* Calculates future demand using historical consumption data
