@@ -116,4 +116,21 @@ public class ForecastController {
         );
     }
 
+    // COMPLETE PLANNING RECOMMENDATION
+    @GetMapping("/planning/{inventoryItemId}")
+    public ResponseEntity<String>
+    getPlanningRecommendation(
+            @PathVariable Integer inventoryItemId,
+            @RequestParam(
+                    defaultValue = "Monthly"
+            )
+            String forecastPeriod) {
+
+        return forecastService
+                .getPlanningRecommendation(
+                        inventoryItemId,
+                        forecastPeriod
+                );
+    }
+
 }

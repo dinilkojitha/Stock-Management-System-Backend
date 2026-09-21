@@ -539,6 +539,68 @@ public class ForecastService {
         );
     }
 
+    // COMPLETE PLANNING RECOMMENDATION
+    public ResponseEntity<String>
+    getPlanningRecommendation(
+            Integer inventoryItemId,
+            String forecastPeriod) {
+
+        InventoryItem inventoryItem =
+                inventoryItemRepository
+                        .findById(inventoryItemId)
+                        .orElse(null);
+
+        if (inventoryItem == null) {
+
+            return ResponseEntity.badRequest()
+                    .body(
+                            "Inventory item not found"
+                    );
+        }
+
+        double predictedDemand =
+                calculateForecast(
+                        inventoryItemId,
+                        forecastPeriod
+                );
+
+        double recommendedPurchase =
+                calculateRecommendedPurchase(
+                        inventoryItemId,
+                        forecastPeriod
+                );
+
+        double currentStock =
+                inventoryItem.getTotalQuantity() != null
+                        ? inventoryItem.getTotalQuantity()
+                        : 0.0;
+
+        double reorderThreshold =
+                inventoryItem.getReorderThreshold() != null
+                        ? inventoryItem.getReorderThreshold()
+                        : 0.0;
+
+        String result =
+                "Item: " +
+                        inventoryItem.getItemName() +
+
+                        ", Current Stock: " +
+                        round(currentStock) +
+
+                        ", Reorder Threshold: " +
+                        round(reorderThreshold) +
+
+                        ", Forecast Period: " +
+                        forecastPeriod +
+
+                        ", Predicted Demand: " +
+                        predictedDemand +
+
+                        ", Recommended Purchase: " +
+                        recommendedPurchase;
+
+        return ResponseEntity.ok(result);
+    }
 
     // ROUND VALUES
     private double round(double value) {
