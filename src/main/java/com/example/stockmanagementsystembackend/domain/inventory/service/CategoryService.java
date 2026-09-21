@@ -11,7 +11,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @Service
-public class CategoryService {
+// Polymorphism: this concrete service can be used through CrudService<Category, Integer>.
+public class CategoryService implements CrudService<Category, Integer> {
     private final CategoryRepository categoryRepository;
 
     public CategoryService(CategoryRepository categoryRepository) {
@@ -19,37 +20,42 @@ public class CategoryService {
     }
 
     @Transactional
-    public Category createCategory(Category category) {
+    @Override
+    public Category create(Category category) {
         validateCategory(category);
         category.setId(null);
         return categoryRepository.save(category);
     }
 
+    @Override
     @Transactional(readOnly = true)
-    public List<Category> getAllCategories() {
+    public List<Category> getAll() {
         return categoryRepository.findAll();
     }
 
+    @Override
     @Transactional(readOnly = true)
-    public Category getCategoryById(Integer id) {
+    public Category getById(Integer id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> categoryNotFound(id));
     }
 
+    @Override
     @Transactional
-    public Category updateCategory(Integer id, Category category) {
+    public Category update(Integer id, Category category) {
         validateCategory(category);
 
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> categoryNotFound(id));
-        existingCategory.setCategoryName(category.getCategoryName());
+        existingCategory.setName(category.getName());
         existingCategory.setDescription(category.getDescription());
 
         return categoryRepository.save(existingCategory);
     }
 
+    @Override
     @Transactional
-    public void deleteCategory(Integer id) {
+    public void delete(Integer id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> categoryNotFound(id));
 
@@ -65,14 +71,14 @@ public class CategoryService {
     }
 
     private void validateCategory(Category category) {
-        if (category == null || category.getCategoryName() == null || category.getCategoryName().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "categoryName must not be blank");
+        if (category == null || category.getName() == null || category.getName().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name must not be blank");
         }
 
-        if (category.getCategoryName().length() > 45) {
+        if (category.getName().length() > 45) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "categoryName must not exceed 45 characters"
+                    "name must not exceed 45 characters"
             );
         }
     }

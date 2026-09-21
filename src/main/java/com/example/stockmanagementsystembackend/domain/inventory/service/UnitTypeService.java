@@ -11,7 +11,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @Service
-public class UnitTypeService {
+// Polymorphism: callers may depend on the generic CRUD contract.
+public class UnitTypeService implements CrudService<UnitType, Integer> {
     private final UnitTypeRepository unitTypeRepository;
 
     public UnitTypeService(UnitTypeRepository unitTypeRepository) {
@@ -19,36 +20,41 @@ public class UnitTypeService {
     }
 
     @Transactional
-    public UnitType createUnitType(UnitType unitType) {
+    @Override
+    public UnitType create(UnitType unitType) {
         validateUnitType(unitType);
         unitType.setId(null);
         return unitTypeRepository.save(unitType);
     }
 
+    @Override
     @Transactional(readOnly = true)
-    public List<UnitType> getAllUnitTypes() {
+    public List<UnitType> getAll() {
         return unitTypeRepository.findAll();
     }
 
+    @Override
     @Transactional(readOnly = true)
-    public UnitType getUnitTypeById(Integer id) {
+    public UnitType getById(Integer id) {
         return unitTypeRepository.findById(id)
                 .orElseThrow(() -> unitTypeNotFound(id));
     }
 
+    @Override
     @Transactional
-    public UnitType updateUnitType(Integer id, UnitType unitType) {
+    public UnitType update(Integer id, UnitType unitType) {
         validateUnitType(unitType);
 
         UnitType existingUnitType = unitTypeRepository.findById(id)
                 .orElseThrow(() -> unitTypeNotFound(id));
-        existingUnitType.setUnit(unitType.getUnit());
+        existingUnitType.setName(unitType.getName());
 
         return unitTypeRepository.save(existingUnitType);
     }
 
+    @Override
     @Transactional
-    public void deleteUnitType(Integer id) {
+    public void delete(Integer id) {
         UnitType unitType = unitTypeRepository.findById(id)
                 .orElseThrow(() -> unitTypeNotFound(id));
 
@@ -64,14 +70,14 @@ public class UnitTypeService {
     }
 
     private void validateUnitType(UnitType unitType) {
-        if (unitType == null || unitType.getUnit() == null || unitType.getUnit().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "unit must not be blank");
+        if (unitType == null || unitType.getName() == null || unitType.getName().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name must not be blank");
         }
 
-        if (unitType.getUnit().length() > 45) {
+        if (unitType.getName().length() > 45) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "unit must not exceed 45 characters"
+                    "name must not exceed 45 characters"
             );
         }
     }

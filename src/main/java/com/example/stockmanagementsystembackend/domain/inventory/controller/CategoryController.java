@@ -29,19 +29,19 @@ public class CategoryController {
 
     @PostMapping
     public ResponseEntity<Category> createCategory(@Valid @RequestBody Category category) {
-        Category createdCategory = categoryService.createCategory(category);
+        Category createdCategory = categoryService.create(category);
         URI location = URI.create("/api/categories/" + createdCategory.getId());
         return ResponseEntity.created(location).body(createdCategory);
     }
 
     @GetMapping
     public ResponseEntity<List<Category>> getAllCategories() {
-        return ResponseEntity.ok(categoryService.getAllCategories());
+        return ResponseEntity.ok(categoryService.getAll());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Category> getCategoryById(@PathVariable Integer id) {
-        return ResponseEntity.ok(categoryService.getCategoryById(id));
+        return ResponseEntity.ok(categoryService.getById(id));
     }
 
     @PutMapping("/{id}")
@@ -49,12 +49,12 @@ public class CategoryController {
             @PathVariable Integer id,
             @Valid @RequestBody Category category
     ) {
-        return ResponseEntity.ok(categoryService.updateCategory(id, category));
+        return ResponseEntity.ok(categoryService.update(id, category));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Integer id) {
-        categoryService.deleteCategory(id);
+        categoryService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
