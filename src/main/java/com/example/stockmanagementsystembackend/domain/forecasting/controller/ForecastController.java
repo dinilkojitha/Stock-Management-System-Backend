@@ -180,6 +180,22 @@ public class ForecastController {
         );
     }
 
+    // GET WASTAGE COST
+    @GetMapping("/wastage/{inventoryItemId}/cost")
+    public ResponseEntity<String>
+    calculateWastageCost(
+            @PathVariable Integer inventoryItemId) {
 
+        double wastageCost =
+                forecastService
+                        .calculateWastageCost(
+                                inventoryItemId
+                        );
+
+        return ResponseEntity.ok(
+                "Total wastage cost: " +
+                        wastageCost
+        );
+    }
 
 }

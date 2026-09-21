@@ -854,7 +854,35 @@ public class ForecastService {
         return round(totalWastage);
     }
 
-    
+    // CALCULATE WASTAGE COST
+    public double calculateWastageCost(
+            Integer inventoryItemId) {
+
+        InventoryItem inventoryItem =
+                inventoryItemRepository
+                        .findById(inventoryItemId)
+                        .orElse(null);
+
+        if (inventoryItem == null) {
+
+            return 0.0;
+        }
+
+        double totalWastage =
+                calculateTotalWastage(
+                        inventoryItemId
+                );
+
+        double unitPrice =
+                inventoryItem.getUnitPrice() != null
+                        ? inventoryItem.getUnitPrice()
+                        : 0.0;
+
+        return round(
+                totalWastage * unitPrice
+        );
+    }
+
 
     // ROUND VALUES
     private double round(double value) {
