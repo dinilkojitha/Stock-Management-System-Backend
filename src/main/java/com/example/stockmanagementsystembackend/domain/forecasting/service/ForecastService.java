@@ -145,6 +145,45 @@ public class ForecastService {
         );
     }
 
+    // GET FORECAST BY ID
+    public ResponseEntity<String> getForecastById(
+            Integer id) {
+
+        Forecast forecast =
+                forecastRepository
+                        .findById(id)
+                        .orElse(null);
+
+        if (forecast == null) {
+
+            return ResponseEntity.notFound().build();
+        }
+
+        String itemName = "N/A";
+
+        if (forecast.getItem() != null) {
+
+            itemName =
+                    forecast.getItem().getItemName();
+        }
+
+        String result =
+                "Forecast ID: " +
+                        forecast.getId() +
+                        ", Item: " +
+                        itemName +
+                        ", Predicted Demand: " +
+                        forecast.getPredictedDemand() +
+                        ", Forecast Date: " +
+                        forecast.getForecastDate() +
+                        ", Forecast Period: " +
+                        forecast.getForecastPeriod();
+
+        return ResponseEntity.ok(result);
+    }
+
+    
+
     // CALCULATE FORECAST
      /* Calculates future demand using historical consumption data
       * Historical period:
