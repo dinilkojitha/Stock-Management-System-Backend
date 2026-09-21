@@ -5,7 +5,12 @@ import com.example.stockmanagementsystembackend.domain.distribution.entity.Inter
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
+
 @Repository
 public interface InternalRequestItemRepository
         extends JpaRepository<InternalRequestItem, InternalRequestItemId> {
+
+    List<InternalRequestItem> findByIdRequestId(Integer requestId);
 }

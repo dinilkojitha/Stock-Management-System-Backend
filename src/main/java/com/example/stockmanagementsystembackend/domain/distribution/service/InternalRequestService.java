@@ -113,6 +113,8 @@ public class InternalRequestService {
                     itemDTO.getQuantity()
             );
 
+            requestItem.setAllocatedQuantity(0.0);
+
             internalRequestItemRepository.save(requestItem);
 
 
