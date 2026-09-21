@@ -6,7 +6,7 @@ Student: Dinsitha W. A. M. — IT25101443
 
 The app entry point renders the Inventory Management workspace. It supports item CRUD,
 server-side name search, All/Low Stock filters, inventory valuation, and CRUD screens
-for Categories and Unit Types. No additional module, router, or dependency was added.
+for Categories, Unit Types, and Stock Batches. No additional module, router, or dependency was added.
 
 ### Run locally
 
@@ -16,7 +16,7 @@ for Categories and Unit Types. No additional module, router, or dependency was a
    must already exist for item creation. The backend must allow the frontend origin
    through its existing CORS/security configuration.
 3. Run `npm install` if dependencies are missing, then `npm run dev`.
-4. Run `npm run build`, `npm run lint`, and `node --test tests/inventory.test.mjs`
+4. Run `npm run build`, `npm run lint`, and `node --test tests/inventory.test.mjs tests/stock.test.mjs`
    for verification.
 
 The application always calls the backend. Connection failures display an error and
@@ -24,7 +24,7 @@ retry controls; no sample inventory replaces unavailable data.
 
 ### Integration details
 
-- Entry: `src/App.jsx` selects Inventory Items, Categories, or Unit Types from hash-based
+- Entry: `src/App.jsx` selects Inventory Items, Categories, Unit Types, or Stock Batches from hash-based
   workspace navigation. Each page uses the shared `InventoryLayout`.
 - Reusable UI: `src/components/inventory/`; scoped CSS: `src/styles/inventory.css`.
 - Fetch API adapter: `src/api/inventoryApi.js`.
@@ -38,6 +38,38 @@ retry controls; no sample inventory replaces unavailable data.
 - Summary cards reflect the current filtered view. Monetary values show two decimal
   places without assuming a currency not specified by the backend.
 - Unit tests stub transport only within the test process; they do not access MySQL.
+
+### Stock batch and expiry management
+
+- Open `#/stock-batches` using Stock Batches in the existing workspace navigation.
+- `StockBatches.jsx` uses `StockTable`, `StockEditor`, `StockForm`, the shared layout,
+  and the existing delete confirmation. Save/delete success refreshes the current view.
+- The verified backend requires a manually assigned integer `stockId`, which is
+  required on creation and read-only on edit. Duplicate IDs display the backend's
+  conflict message. IDs are never generated or guessed by the frontend.
+- Stock JSON: `{ stockId, itemIds: [7], branchId: 1, quantity,
+  manufactureDate: "2026-09-01", expiryDate: "2026-10-01" }`.
+  The backend supports multiple item links; the form preserves/selects all of them.
+- Dropdowns use `GET /api/inventory-items` (`id`, `name`) and the team's existing
+  `GET /api/branches` (`id`, `branchName`, `location`). Only branch lookup is used.
+- Stock API helpers: `getStocks`, `getStock`, `createStock`, `updateStock`,
+  `deleteStock`, `getStocksByItem`, `getStocksByBranch`, `getExpiringStocks`, and
+  `getExpiredStocks`, all using the existing configurable `VITE_API_BASE_URL`.
+- All, Expiring Soon, and Expired call their corresponding REST endpoints.
+  Item/branch selectors use the item/branch endpoints in All mode. Combined
+  selections apply the remaining constraints to the returned records.
+- `expiryStatus` in `stockUtils.js` compares ISO date-only strings: earlier than
+  today = EXPIRED (red), today through today + 30 calendar days inclusive =
+  EXPIRING SOON (amber), otherwise = OK (green). Dates remain date-only and are
+  never converted into local timestamps. The browser's local date updates at
+  midnight and on window focus; the Spring backend uses its system timezone,
+  so both should use the hotel's timezone for consistent filter boundaries.
+- Dates are optional, matching the backend; unset dates display `Not set` and
+  follow the otherwise/OK rule. Malformed returned dates display UNKNOWN.
+  Nonnegative finite quantities and manufacture/expiry ordering are validated,
+  including the backend's supported date years (1000–9999).
+- Batch CRUD does not adjust aggregate inventory quantities, matching the current
+  backend service. No transfer workflow or branch mutation is included.
 
 ---
 
