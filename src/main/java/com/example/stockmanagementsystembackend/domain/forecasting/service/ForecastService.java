@@ -484,6 +484,62 @@ public class ForecastService {
                 || type.equals("spoilage");
     }
 
+    // CALCULATE RECOMMENDED PURCHASE
+    /*
+        Formula:
+        Require Stock = Predicted demand + Reorder threshold
+        Recommended Purchase = Required stock - Current stock
+        * If the result is negative, recommended purchase = 0
+     */
+    public double calculateRecommendedPurchase(
+            Integer inventoryItemId,
+            String forecastPeriod) {
+
+        InventoryItem inventoryItem =
+                inventoryItemRepository
+                        .findById(inventoryItemId)
+                        .orElse(null);
+
+        if (inventoryItem == null) {
+
+            return 0.0;
+        }
+
+        double predictedDemand =
+                calculateForecast(
+                        inventoryItemId,
+                        forecastPeriod
+                );
+
+        double currentStock =
+                inventoryItem.getTotalQuantity() != null
+                        ? inventoryItem.getTotalQuantity()
+                        : 0.0;
+
+        double reorderThreshold =
+                inventoryItem.getReorderThreshold() != null
+                        ? inventoryItem.getReorderThreshold()
+                        : 0.0;
+
+        double requiredStock =
+                predictedDemand +
+                        reorderThreshold;
+
+        double recommendedPurchase =
+                requiredStock -
+                        currentStock;
+
+        if (recommendedPurchase < 0) {
+
+            recommendedPurchase = 0.0;
+        }
+
+        return round(
+                recommendedPurchase
+        );
+    }
+
+
     // ROUND VALUES
     private double round(double value) {
         return Math.round(value * 100.0) / 100.0;

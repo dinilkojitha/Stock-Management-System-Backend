@@ -91,6 +91,29 @@ public class ForecastController {
         );
     }
 
+    // CALCULATE RECOMMENDED PURCHASE
+    @GetMapping("/purchase/{inventoryItemId}")
+    public ResponseEntity<String>
+    calculateRecommendedPurchase(
+            @PathVariable Integer inventoryItemId,
+            @RequestParam(
+                    defaultValue = "Monthly"
+            )
+            String forecastPeriod) {
 
+        double recommendedPurchase =
+                forecastService
+                        .calculateRecommendedPurchase(
+                                inventoryItemId,
+                                forecastPeriod
+                        );
+
+        return ResponseEntity.ok(
+                "Recommended purchase quantity for " +
+                        forecastPeriod +
+                        ": " +
+                        recommendedPurchase
+        );
+    }
 
 }
