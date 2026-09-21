@@ -182,7 +182,97 @@ public class ForecastService {
         return ResponseEntity.ok(result);
     }
 
-    
+    // UPDATE FORECAST
+    public ResponseEntity<String> updateForecast(
+            Integer id,
+            Forecast forecastDetails) {
+
+        Forecast existingForecast =
+                forecastRepository
+                        .findById(id)
+                        .orElse(null);
+
+        if (existingForecast == null) {
+
+            return ResponseEntity.notFound()
+                    .build();
+        }
+
+        if (forecastDetails == null ||
+                forecastDetails.getItem() == null ||
+                forecastDetails.getItem().getId() == null) {
+
+            return ResponseEntity.badRequest()
+                    .body("Inventory item is required");
+        }
+
+        Integer itemId =
+                forecastDetails
+                        .getItem()
+                        .getId();
+
+        InventoryItem inventoryItem =
+                inventoryItemRepository
+                        .findById(itemId)
+                        .orElse(null);
+
+        if (inventoryItem == null) {
+
+            return ResponseEntity.badRequest()
+                    .body("Inventory item not found");
+        }
+
+        String forecastPeriod =
+                forecastDetails.getForecastPeriod();
+
+        if (forecastPeriod == null ||
+                forecastPeriod.isBlank()) {
+
+            forecastPeriod = "Monthly";
+        }
+
+        double predictedDemand =
+                calculateForecast(
+                        itemId,
+                        forecastPeriod
+                );
+
+        existingForecast.setItem(
+                inventoryItem
+        );
+
+        existingForecast.setForecastPeriod(
+                forecastPeriod
+        );
+
+        existingForecast.setPredictedDemand(
+                predictedDemand
+        );
+
+        if (forecastDetails.getForecastDate() != null) {
+
+            existingForecast.setForecastDate(
+                    forecastDetails.getForecastDate()
+            );
+
+        } else {
+
+            existingForecast.setForecastDate(
+                    java.time.LocalDate.now()
+            );
+        }
+
+        forecastRepository.save(
+                existingForecast
+        );
+
+        return ResponseEntity.ok(
+                "Forecast updated successfully. " +
+                        "New predicted demand: " +
+                        predictedDemand
+        );
+    }
+
 
     // CALCULATE FORECAST
      /* Calculates future demand using historical consumption data

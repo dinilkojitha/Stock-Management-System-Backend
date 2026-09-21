@@ -45,7 +45,17 @@ public class ForecastController {
         );
     }
 
+    // UPDATE FORECAST
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateForecast(
+            @PathVariable Integer id,
+            @RequestBody Forecast forecast) {
 
+        return forecastService.updateForecast(
+                id,
+                forecast
+        );
+    }
 
     // CALCULATE FORECAST
     @GetMapping("/calculate/{inventoryItemId}")
