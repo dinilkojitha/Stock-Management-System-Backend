@@ -11,7 +11,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -23,6 +26,7 @@ public class InventoryItem {
     @Column(name = "item_id", nullable = false)
     private Integer id;
 
+    @NotBlank(message = "name must not be blank")
     @Size(max = 60)
     @Column(name = "name", length = 60)
     private String name;
@@ -32,6 +36,7 @@ public class InventoryItem {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @PositiveOrZero
     @Column(name = "total_quantity")
     private Double totalQuantity;
 
@@ -40,6 +45,7 @@ public class InventoryItem {
     @JoinColumn(name = "unit_type_id", nullable = false)
     private UnitType unitType;
 
+    @PositiveOrZero
     @Column(name = "unit_price")
     private Double unitPrice;
 
@@ -47,6 +53,7 @@ public class InventoryItem {
     @Column(name = "description")
     private String description;
 
+    @PositiveOrZero
     @Column(name = "reorder_threshold")
     private Double reorderThreshold;
 
@@ -79,7 +86,7 @@ public class InventoryItem {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name == null ? null : name.strip();
     }
 
     /**
@@ -91,12 +98,24 @@ public class InventoryItem {
         return name;
     }
 
+    @JsonIgnore
     public Category getCategory() {
         return category;
     }
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    // Flat JSON foreign keys reuse the existing relationships; no extra columns.
+    @Transient
+    @NotNull(message = "categoryId is required")
+    public Integer getCategoryId() {
+        return category == null ? null : category.getCategoryId();
+    }
+
+    public void setCategoryId(Integer categoryId) {
+        category = categoryId == null ? null : new Category(categoryId, null, null);
     }
 
     public Double getTotalQuantity() {
@@ -107,12 +126,29 @@ public class InventoryItem {
         this.totalQuantity = totalQuantity;
     }
 
+    @JsonIgnore
     public UnitType getUnitType() {
         return unitType;
     }
 
     public void setUnitType(UnitType unitType) {
         this.unitType = unitType;
+    }
+
+    @Transient
+    @NotNull(message = "unitTypeId is required")
+    public Integer getUnitTypeId() {
+        return unitType == null ? null : unitType.getUnitTypeId();
+    }
+
+    public void setUnitTypeId(Integer unitTypeId) {
+        unitType = unitTypeId == null ? null : new UnitType(unitTypeId, null);
+    }
+
+    /** Calculated on demand, never persisted. Missing quantity/price counts as zero. */
+    public double calculateValuation() {
+        return (totalQuantity == null ? 0.0 : totalQuantity)
+                * (unitPrice == null ? 0.0 : unitPrice);
     }
 
     public Double getUnitPrice() {
