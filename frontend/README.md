@@ -4,9 +4,9 @@
 
 Student: Dinsitha W. A. M. — IT25101443
 
-The app entry point renders the Inventory Management screen. It supports item CRUD,
-server-side name search, All/Low Stock filters, category and unit type lookups, and
-inventory valuation. No additional module, router, or dependency was added.
+The app entry point renders the Inventory Management workspace. It supports item CRUD,
+server-side name search, All/Low Stock filters, inventory valuation, and CRUD screens
+for Categories and Unit Types. No additional module, router, or dependency was added.
 
 ### Run locally
 
@@ -24,7 +24,8 @@ retry controls; no sample inventory replaces unavailable data.
 
 ### Integration details
 
-- Entry: `src/App.jsx` → `src/pages/inventory/InventoryItems.jsx`.
+- Entry: `src/App.jsx` selects Inventory Items, Categories, or Unit Types from hash-based
+  workspace navigation. Each page uses the shared `InventoryLayout`.
 - Reusable UI: `src/components/inventory/`; scoped CSS: `src/styles/inventory.css`.
 - Fetch API adapter: `src/api/inventoryApi.js`.
 - Request fields: `name`, `categoryId`, `unitTypeId`, `totalQuantity`, `unitPrice`,

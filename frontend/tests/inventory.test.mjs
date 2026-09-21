@@ -49,15 +49,27 @@ test('API methods use the correct endpoints, verbs, JSON bodies and empty DELETE
   await api.updateInventoryItem(7, payload)
   await api.updateInventoryItemQuantity(7, -2.5)
   assert.equal(await api.deleteInventoryItem(7), null)
+  await api.createCategory({ name: 'Food', description: 'Kitchen supplies' })
+  await api.updateCategory(3, { name: 'Food', description: 'Food supplies' })
+  assert.equal(await api.deleteCategory(3), null)
+  await api.createUnitType({ name: 'Kilogram' })
+  await api.updateUnitType(4, { name: 'kg' })
+  assert.equal(await api.deleteUnitType(4), null)
   assert.deepEqual(calls.map(({ url }) => url.replace(api.API_BASE_URL, '')), [
     '/api/inventory-items', '/api/inventory-items/7', '/api/inventory-items/search?keyword=rice+%26+tea',
     '/api/inventory-items/low-stock', '/api/categories', '/api/unit-types',
     '/api/inventory-items', '/api/inventory-items/7', '/api/inventory-items/7/quantity', '/api/inventory-items/7',
+    '/api/categories', '/api/categories/3', '/api/categories/3',
+    '/api/unit-types', '/api/unit-types/4', '/api/unit-types/4',
   ])
-  assert.deepEqual(calls.slice(6).map(({ method }) => method), ['POST', 'PUT', 'PUT', 'DELETE'])
+  assert.deepEqual(calls.slice(6).map(({ method }) => method), ['POST', 'PUT', 'PUT', 'DELETE', 'POST', 'PUT', 'DELETE', 'POST', 'PUT', 'DELETE'])
   assert.deepEqual(JSON.parse(calls[6].body), payload)
   assert.deepEqual(JSON.parse(calls[7].body), payload)
   assert.deepEqual(JSON.parse(calls[8].body), { quantityDelta: -2.5 })
+  assert.deepEqual(JSON.parse(calls[10].body), { name: 'Food', description: 'Kitchen supplies' })
+  assert.deepEqual(JSON.parse(calls[11].body), { name: 'Food', description: 'Food supplies' })
+  assert.deepEqual(JSON.parse(calls[13].body), { name: 'Kilogram' })
+  assert.deepEqual(JSON.parse(calls[14].body), { name: 'kg' })
   assert.equal(calls[6].headers['Content-Type'], 'application/json')
 })
 

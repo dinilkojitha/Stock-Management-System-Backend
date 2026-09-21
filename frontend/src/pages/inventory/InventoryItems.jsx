@@ -7,9 +7,9 @@ import ConfirmDeleteModal from '../../components/inventory/ConfirmDeleteModal.js
 import InventoryIcon from '../../components/inventory/InventoryIcon.jsx'
 import InventoryItemEditor from '../../components/inventory/InventoryItemEditor.jsx'
 import InventoryItemTable from '../../components/inventory/InventoryItemTable.jsx'
+import InventoryLayout from '../../components/inventory/InventoryLayout.jsx'
 import InventorySummaryCards from '../../components/inventory/InventorySummaryCards.jsx'
 import { isLowStock } from '../../components/inventory/inventoryUtils.js'
-import '../../styles/inventory.css'
 
 export default function InventoryItems() {
   const [items, setItems] = useState([])
@@ -95,18 +95,10 @@ export default function InventoryItems() {
     setFilter('all')
   }
 
+  const action = <button className="inv-button inv-button--primary" disabled={lookupLoading || Boolean(lookupError)} onClick={() => { setSuccess(''); setEditor({ id: null }) }}><InventoryIcon name="plus" />Add Inventory Item</button>
+
   return (
-    <div className="inventory-app">
-      <header className="inv-topbar">
-        <a className="inv-brand" href="#inventory-main" aria-label="StockMaster inventory"><span className="inv-brand-mark"><InventoryIcon name="box" /></span><span>Stock<span>Master</span><small>HOTEL INVENTORY</small></span></a>
-        <div className="inv-topbar-label"><span />Inventory workspace</div>
-      </header>
-      <main id="inventory-main" className="inv-main">
-        <div className="inv-breadcrumb">StockMaster <InventoryIcon name="arrow" /> Inventory <InventoryIcon name="arrow" /><span>Items</span></div>
-        <div className="inv-page-heading">
-          <div><span className="inv-eyebrow">STOCK CONTROL</span><h1>Inventory Management</h1><p>A clear view of your hotel essentials, stock levels, and inventory value.</p></div>
-          <button className="inv-button inv-button--primary" disabled={lookupLoading || Boolean(lookupError)} onClick={() => { setSuccess(''); setEditor({ id: null }) }}><InventoryIcon name="plus" />Add Inventory Item</button>
-        </div>
+    <InventoryLayout active="items" eyebrow="STOCK CONTROL" title="Inventory Management" description="A clear view of your hotel essentials, stock levels, and inventory value." action={action}>
 
         {success && <div className="inv-notice inv-notice--success" role="status"><InventoryIcon name="check" /><span>{success}</span><button className="inv-icon-button" aria-label="Dismiss success message" onClick={() => setSuccess('')}><InventoryIcon name="close" /></button></div>}
         {lookupError && <div className="inv-notice inv-notice--error" role="alert"><InventoryIcon name="alert" /><span>Category and unit type details could not be loaded. {lookupError}</span><button className="inv-text-button" onClick={retryLookups}>Retry lookups</button></div>}
@@ -131,10 +123,8 @@ export default function InventoryItems() {
           </div>
           <div className="inv-table-footer"><span>{loading ? 'Updating inventory…' : error ? 'Unable to load inventory' : `Showing ${items.length} ${items.length === 1 ? 'item' : 'items'}${filter === 'low' ? ' · low stock' : ''}${keyword.trim() ? ' · search results' : ''}`}</span><span><span className="inv-filter-dot" />Low stock: quantity ≤ reorder level</span></div>
         </section>
-        <footer className="inv-page-footer"><span>StockMaster <span>·</span> Hotel Inventory Management</span><span>Dinsitha W. A. M. <span>·</span> IT25101443</span></footer>
-      </main>
       {editor && <InventoryItemEditor itemId={editor.id} categories={categories} unitTypes={unitTypes} onSave={saveItem} onClose={() => setEditor(null)} />}
       {deleteTarget && <ConfirmDeleteModal item={deleteTarget} onConfirm={removeItem} onClose={() => setDeleteTarget(null)} />}
-    </div>
+    </InventoryLayout>
   )
 }

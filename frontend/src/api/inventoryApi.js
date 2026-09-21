@@ -3,7 +3,7 @@ export const API_BASE_URL = (
 ).replace(/\/+$/, '')
 
 const statusMessages = {
-  400: 'Please check the item details and try again.',
+  400: 'Please check the submitted details and try again.',
   401: 'Your session is not authorized to access inventory.',
   403: 'You do not have permission to perform this action.',
   404: 'The requested inventory record could not be found.',
@@ -60,6 +60,8 @@ async function list(path, options) {
 }
 
 const itemPath = (id) => `/api/inventory-items/${encodeURIComponent(id)}`
+const categoryPath = (id) => `/api/categories/${encodeURIComponent(id)}`
+const unitTypePath = (id) => `/api/unit-types/${encodeURIComponent(id)}`
 
 export const getInventoryItems = (options) => list('/api/inventory-items', options)
 export const getInventoryItem = (id, options) => request(itemPath(id), options)
@@ -73,4 +75,23 @@ export const deleteInventoryItem = (id) => request(itemPath(id), { method: 'DELE
 export const updateInventoryItemQuantity = (id, quantityDelta) =>
   request(`${itemPath(id)}/quantity`, { method: 'PUT', body: { quantityDelta } })
 export const getCategories = (options) => list('/api/categories', options)
+export const createCategory = (category) => request('/api/categories', { method: 'POST', body: category })
+export const updateCategory = (id, category) => request(categoryPath(id), { method: 'PUT', body: category })
+export const deleteCategory = (id) => request(categoryPath(id), { method: 'DELETE' })
 export const getUnitTypes = (options) => list('/api/unit-types', options)
+export const createUnitType = (unitType) => request('/api/unit-types', { method: 'POST', body: unitType })
+export const updateUnitType = (id, unitType) => request(unitTypePath(id), { method: 'PUT', body: unitType })
+export const deleteUnitType = (id) => request(unitTypePath(id), { method: 'DELETE' })
+
+const stockPath = (id) => `/api/stocks/${encodeURIComponent(id)}`
+export const getStocks = (options) => list('/api/stocks', options)
+export const getStock = (id, options) => request(stockPath(id), options)
+export const createStock = (stock) => request('/api/stocks', { method: 'POST', body: stock })
+export const updateStock = (id, stock) => request(stockPath(id), { method: 'PUT', body: stock })
+export const deleteStock = (id) => request(stockPath(id), { method: 'DELETE' })
+export const getStocksByItem = (itemId, options) => list(`/api/stocks/item/${encodeURIComponent(itemId)}`, options)
+export const getStocksByBranch = (branchId, options) => list(`/api/stocks/branch/${encodeURIComponent(branchId)}`, options)
+export const getExpiringStocks = (days = 30, options) => list(`/api/stocks/expiring?${new URLSearchParams({ days })}`, options)
+export const getExpiredStocks = (options) => list('/api/stocks/expired', options)
+// Existing team endpoint, read-only lookup. BranchResponse has id/branchName.
+export const getBranches = (options) => list('/api/branches', options)
