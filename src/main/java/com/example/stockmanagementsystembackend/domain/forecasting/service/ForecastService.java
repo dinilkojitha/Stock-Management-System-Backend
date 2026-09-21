@@ -810,6 +810,51 @@ public class ForecastService {
         );
     }
 
+    // CALCULATE TOTAL WASTAGE
+    public double calculateTotalWastage(
+            Integer inventoryItemId) {
+
+        List<Transaction> transactions =
+                transactionRepository.findAll();
+
+        double totalWastage = 0.0;
+
+        for (Transaction transaction :
+                transactions) {
+
+            if (transaction.getItem() == null) {
+                continue;
+            }
+
+            if (!transaction.getItem()
+                    .getId()
+                    .equals(inventoryItemId)) {
+
+                continue;
+            }
+
+            if (!isWastageTransaction(
+                    transaction)) {
+
+                continue;
+            }
+
+            if (transaction.getQuantityDelta()
+                    == null) {
+
+                continue;
+            }
+
+            totalWastage +=
+                    Math.abs(
+                            transaction.getQuantityDelta()
+                    );
+        }
+
+        return round(totalWastage);
+    }
+
+    
 
     // ROUND VALUES
     private double round(double value) {
