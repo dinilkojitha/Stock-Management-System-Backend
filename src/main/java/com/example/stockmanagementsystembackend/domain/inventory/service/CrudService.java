@@ -9,6 +9,14 @@ import java.util.List;
 public interface CrudService<T, ID> {
     T create(T entity);
 
+    /**
+     * Standard persistence name used by CRUD services. The default keeps
+     * existing inventory implementations backward compatible.
+     */
+    default T save(T entity) {
+        return create(entity);
+    }
+
     List<T> getAll();
 
     T getById(ID id);

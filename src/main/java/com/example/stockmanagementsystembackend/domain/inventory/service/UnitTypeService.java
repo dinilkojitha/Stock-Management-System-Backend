@@ -22,8 +22,15 @@ public class UnitTypeService implements CrudService<UnitType, Integer> {
     @Transactional
     @Override
     public UnitType create(UnitType unitType) {
+        return save(unitType);
+    }
+
+    @Override
+    @Transactional
+    public UnitType save(UnitType unitType) {
+        normalizeUnitType(unitType);
         validateUnitType(unitType);
-        unitType.setId(null);
+        unitType.setUnitTypeId(null);
         return unitTypeRepository.save(unitType);
     }
 
@@ -43,6 +50,7 @@ public class UnitTypeService implements CrudService<UnitType, Integer> {
     @Override
     @Transactional
     public UnitType update(Integer id, UnitType unitType) {
+        normalizeUnitType(unitType);
         validateUnitType(unitType);
 
         UnitType existingUnitType = unitTypeRepository.findById(id)
@@ -50,6 +58,14 @@ public class UnitTypeService implements CrudService<UnitType, Integer> {
         existingUnitType.setName(unitType.getName());
 
         return unitTypeRepository.save(existingUnitType);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UnitType> search(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return getAll();
+        }
+        return unitTypeRepository.findByNameContainingIgnoreCaseOrderByNameAsc(keyword.trim());
     }
 
     @Override
@@ -79,6 +95,12 @@ public class UnitTypeService implements CrudService<UnitType, Integer> {
                     HttpStatus.BAD_REQUEST,
                     "name must not exceed 45 characters"
             );
+        }
+    }
+
+    private void normalizeUnitType(UnitType unitType) {
+        if (unitType != null && unitType.getName() != null) {
+            unitType.setName(unitType.getName().trim());
         }
     }
 

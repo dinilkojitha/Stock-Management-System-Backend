@@ -22,8 +22,15 @@ public class CategoryService implements CrudService<Category, Integer> {
     @Transactional
     @Override
     public Category create(Category category) {
+        return save(category);
+    }
+
+    @Override
+    @Transactional
+    public Category save(Category category) {
+        normalizeCategory(category);
         validateCategory(category);
-        category.setId(null);
+        category.setCategoryId(null);
         return categoryRepository.save(category);
     }
 
@@ -43,6 +50,7 @@ public class CategoryService implements CrudService<Category, Integer> {
     @Override
     @Transactional
     public Category update(Integer id, Category category) {
+        normalizeCategory(category);
         validateCategory(category);
 
         Category existingCategory = categoryRepository.findById(id)
@@ -51,6 +59,14 @@ public class CategoryService implements CrudService<Category, Integer> {
         existingCategory.setDescription(category.getDescription());
 
         return categoryRepository.save(existingCategory);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Category> search(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return getAll();
+        }
+        return categoryRepository.findByNameContainingIgnoreCaseOrderByNameAsc(keyword.trim());
     }
 
     @Override
@@ -80,6 +96,18 @@ public class CategoryService implements CrudService<Category, Integer> {
                     HttpStatus.BAD_REQUEST,
                     "name must not exceed 45 characters"
             );
+        }
+    }
+
+    private void normalizeCategory(Category category) {
+        if (category == null) {
+            return;
+        }
+        if (category.getName() != null) {
+            category.setName(category.getName().trim());
+        }
+        if (category.getDescription() != null) {
+            category.setDescription(category.getDescription().trim());
         }
     }
 

@@ -1,11 +1,13 @@
 package com.example.stockmanagementsystembackend.domain.inventory.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -15,26 +17,45 @@ public class UnitType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "unit_type_id", nullable = false)
-    private Integer id;
+    private Integer unitTypeId;
 
-    @Size(max = 45)
+    @NotBlank(message = "Unit type name must not be blank")
+    @Size(max = 45, message = "Unit type name must not exceed 45 characters")
     @Column(name = "name", length = 45)
     private String name;
 
     public UnitType() {
     }
 
-    public UnitType(Integer id, String name) {
-        this.id = id;
+    public UnitType(String name) {
         this.name = name;
     }
 
-    public Integer getId() {
-        return id;
+    public UnitType(Integer unitTypeId, String name) {
+        this.unitTypeId = unitTypeId;
+        this.name = name;
     }
 
+    public Integer getUnitTypeId() {
+        return unitTypeId;
+    }
+
+    public void setUnitTypeId(Integer unitTypeId) {
+        this.unitTypeId = unitTypeId;
+    }
+
+    /**
+     * Compatibility accessor for existing inventory relationships that use a
+     * generic entity ID.
+     */
+    @JsonIgnore
+    public Integer getId() {
+        return unitTypeId;
+    }
+
+    @JsonIgnore
     public void setId(Integer id) {
-        this.id = id;
+        this.unitTypeId = id;
     }
 
     public String getName() {

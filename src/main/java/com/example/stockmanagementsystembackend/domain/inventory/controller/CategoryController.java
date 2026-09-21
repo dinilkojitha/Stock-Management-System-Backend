@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
@@ -29,8 +30,8 @@ public class CategoryController {
 
     @PostMapping
     public ResponseEntity<Category> createCategory(@Valid @RequestBody Category category) {
-        Category createdCategory = categoryService.create(category);
-        URI location = URI.create("/api/categories/" + createdCategory.getId());
+        Category createdCategory = categoryService.save(category);
+        URI location = URI.create("/api/categories/" + createdCategory.getCategoryId());
         return ResponseEntity.created(location).body(createdCategory);
     }
 
@@ -42,6 +43,13 @@ public class CategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<Category> getCategoryById(@PathVariable Integer id) {
         return ResponseEntity.ok(categoryService.getById(id));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Category>> searchCategories(
+            @RequestParam(defaultValue = "") String keyword
+    ) {
+        return ResponseEntity.ok(categoryService.search(keyword));
     }
 
     @PutMapping("/{id}")

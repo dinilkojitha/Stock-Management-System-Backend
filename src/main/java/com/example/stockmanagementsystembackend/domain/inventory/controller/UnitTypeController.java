@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
@@ -29,8 +30,8 @@ public class UnitTypeController {
 
     @PostMapping
     public ResponseEntity<UnitType> createUnitType(@Valid @RequestBody UnitType unitType) {
-        UnitType createdUnitType = unitTypeService.create(unitType);
-        URI location = URI.create("/api/unit-types/" + createdUnitType.getId());
+        UnitType createdUnitType = unitTypeService.save(unitType);
+        URI location = URI.create("/api/unit-types/" + createdUnitType.getUnitTypeId());
         return ResponseEntity.created(location).body(createdUnitType);
     }
 
@@ -42,6 +43,13 @@ public class UnitTypeController {
     @GetMapping("/{id}")
     public ResponseEntity<UnitType> getUnitTypeById(@PathVariable Integer id) {
         return ResponseEntity.ok(unitTypeService.getById(id));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UnitType>> searchUnitTypes(
+            @RequestParam(defaultValue = "") String keyword
+    ) {
+        return ResponseEntity.ok(unitTypeService.search(keyword));
     }
 
     @PutMapping("/{id}")
