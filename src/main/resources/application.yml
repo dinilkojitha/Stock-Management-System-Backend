@@ -9,8 +9,8 @@ spring:
   # MySQL Database Configuration
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/se_V2}
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
+    username: root
+    password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   # JPA / Hibernate Configuration
