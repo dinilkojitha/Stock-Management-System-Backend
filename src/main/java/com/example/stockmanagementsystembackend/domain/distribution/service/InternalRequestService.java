@@ -49,9 +49,6 @@ public class InternalRequestService {
                 internalRequestRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Request not found"));
 
-        existingRequest.setDepartment(request.getDepartment());
-        existingRequest.setRequestedByUser(request.getRequestedByUser());
-        existingRequest.setRequestedAt(request.getRequestedAt());
         existingRequest.setStatus(request.getStatus());
 
         return internalRequestRepository.save(existingRequest);

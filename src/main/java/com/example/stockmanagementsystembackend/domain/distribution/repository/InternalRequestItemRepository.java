@@ -13,4 +13,6 @@ public interface InternalRequestItemRepository
         extends JpaRepository<InternalRequestItem, InternalRequestItemId> {
 
     List<InternalRequestItem> findByIdRequestId(Integer requestId);
+
+    List<InternalRequestItem> findAllByOrderByIdRequestIdAsc();
 }

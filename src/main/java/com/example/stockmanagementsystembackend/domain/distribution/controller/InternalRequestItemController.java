@@ -20,7 +20,9 @@ public class InternalRequestItemController {
 
     @GetMapping
     public ResponseEntity<List<InternalRequestItem>> getAllItems() {
-        return ResponseEntity.ok(internalRequestItemService.getAllItems());
+        return ResponseEntity.ok(
+                internalRequestItemService.getAllItemsOrderedByRequestId()
+        );
     }
 
     @PostMapping

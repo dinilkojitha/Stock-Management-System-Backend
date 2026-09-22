@@ -52,4 +52,8 @@ public class InternalRequestItemService {
 
         internalRequestItemRepository.deleteById(id);
     }
+
+    public List<InternalRequestItem> getAllItemsOrderedByRequestId() {
+        return internalRequestItemRepository.findAllByOrderByIdRequestIdAsc();
+    }
 }
