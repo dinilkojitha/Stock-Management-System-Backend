@@ -1,6 +1,10 @@
 HELP.md
 /target/
 
+### Gradle ###
+/.gradle/
+/build/
+
 ### STS ###
 .apt_generated
 .classpath
