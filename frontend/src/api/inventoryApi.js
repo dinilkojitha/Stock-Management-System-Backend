@@ -1,5 +1,5 @@
 export const API_BASE_URL = (
-  import.meta.env?.VITE_API_BASE_URL || 'http://localhost:8080'
+  import.meta.env?.VITE_API_BASE_URL || 'http://localhost:2020'
 ).replace(/\/+$/, '')
 
 const statusMessages = {
@@ -95,3 +95,4 @@ export const getExpiringStocks = (days = 30, options) => list(`/api/stocks/expir
 export const getExpiredStocks = (options) => list('/api/stocks/expired', options)
 // Existing team endpoint, read-only lookup. BranchResponse has id/branchName.
 export const getBranches = (options) => list('/api/branches', options)
+export const getInventoryDashboard = (options) => request('/api/inventory/dashboard', options)

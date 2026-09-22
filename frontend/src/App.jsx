@@ -3,8 +3,10 @@ import Categories from './pages/inventory/Categories.jsx'
 import InventoryItems from './pages/inventory/InventoryItems.jsx'
 import UnitTypes from './pages/inventory/UnitTypes.jsx'
 import StockBatches from './pages/inventory/StockBatches.jsx'
+import InventoryDashboard from './pages/inventory/InventoryDashboard.jsx'
 
 const pages = {
+  '#/dashboard': InventoryDashboard,
   '#/categories': Categories,
   '#/unit-types': UnitTypes,
   '#/inventory-items': InventoryItems,
@@ -20,6 +22,6 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleRouteChange)
   }, [])
 
-  const Page = pages[route] || InventoryItems
+  const Page = pages[route] || InventoryDashboard
   return <Page />
 }

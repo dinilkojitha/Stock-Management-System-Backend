@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
   createInventoryItem, deleteInventoryItem, getCategories, getInventoryItems,
-  getLowStockItems, getUnitTypes, searchInventoryItems, updateInventoryItem,
+  getLowStockItems, getUnitTypes, searchInventoryItems, updateInventoryItem, updateInventoryItemQuantity,
 } from '../../api/inventoryApi.js'
 import ConfirmDeleteModal from '../../components/inventory/ConfirmDeleteModal.jsx'
 import InventoryIcon from '../../components/inventory/InventoryIcon.jsx'
@@ -9,6 +9,7 @@ import InventoryItemEditor from '../../components/inventory/InventoryItemEditor.
 import InventoryItemTable from '../../components/inventory/InventoryItemTable.jsx'
 import InventoryLayout from '../../components/inventory/InventoryLayout.jsx'
 import InventorySummaryCards from '../../components/inventory/InventorySummaryCards.jsx'
+import QuantityAdjustmentModal from '../../components/inventory/QuantityAdjustmentModal.jsx'
 import { isLowStock } from '../../components/inventory/inventoryUtils.js'
 
 export default function InventoryItems() {
@@ -26,6 +27,7 @@ export default function InventoryItems() {
   const [lookupRevision, setLookupRevision] = useState(0)
   const [editor, setEditor] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
+  const [adjustTarget, setAdjustTarget] = useState(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -85,6 +87,13 @@ export default function InventoryItems() {
     refresh()
   }
 
+  async function adjustQuantity(item, delta) {
+    await updateInventoryItemQuantity(item.id, delta)
+    setAdjustTarget(null)
+    setSuccess(`Quantity for “${item.name}” adjusted successfully.`)
+    refresh()
+  }
+
   function changeFilter(nextFilter) {
     if (nextFilter !== filter) { setLoading(true); setFilter(nextFilter) }
   }
@@ -116,7 +125,7 @@ export default function InventoryItems() {
             {loading ? <div className="inv-empty" role="status"><span className="inv-spinner" /><h3>Loading inventory</h3><p>Fetching the latest stock information.</p></div> : error ? (
               <div className="inv-empty"><span className="inv-empty-icon inv-empty-icon--error"><InventoryIcon name="alert" /></span><h3>Inventory is unavailable</h3><p role="alert">{error}</p><button className="inv-button inv-button--secondary" onClick={refresh}>Try Again</button></div>
             ) : items.length ? (
-              <InventoryItemTable items={items} categories={categories} unitTypes={unitTypes} onEdit={(id) => { setSuccess(''); setEditor({ id }) }} onDelete={(item) => { setSuccess(''); setDeleteTarget(item) }} />
+              <InventoryItemTable items={items} categories={categories} unitTypes={unitTypes} onEdit={(id) => { setSuccess(''); setEditor({ id }) }} onAdjust={(id) => { setSuccess(''); setAdjustTarget(id) }} onDelete={(item) => { setSuccess(''); setDeleteTarget(item) }} />
             ) : (
               <div className="inv-empty"><span className="inv-empty-icon"><InventoryIcon name="box" /></span><h3>{keyword.trim() ? 'No matching items' : filter === 'low' ? 'Stock levels look good' : 'Your inventory starts here'}</h3><p>{keyword.trim() ? 'Try a different item name or clear the filters.' : filter === 'low' ? 'No items are currently at or below their reorder level.' : 'Add your first inventory item to start tracking hotel essentials.'}</p>{keyword || filter !== 'all' ? <button className="inv-button inv-button--secondary" onClick={clearFilters}>Clear Filters</button> : <button className="inv-button inv-button--secondary" disabled={lookupLoading || Boolean(lookupError)} onClick={() => setEditor({ id: null })}><InventoryIcon name="plus" />Add Inventory Item</button>}</div>
             )}
@@ -125,6 +134,7 @@ export default function InventoryItems() {
         </section>
       {editor && <InventoryItemEditor itemId={editor.id} categories={categories} unitTypes={unitTypes} onSave={saveItem} onClose={() => setEditor(null)} />}
       {deleteTarget && <ConfirmDeleteModal item={deleteTarget} onConfirm={removeItem} onClose={() => setDeleteTarget(null)} />}
+      {adjustTarget != null && <QuantityAdjustmentModal itemId={adjustTarget} onSave={adjustQuantity} onClose={() => setAdjustTarget(null)} />}
     </InventoryLayout>
   )
 }

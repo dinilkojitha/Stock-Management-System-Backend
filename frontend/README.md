@@ -6,17 +6,20 @@ Student: Dinsitha W. A. M. — IT25101443
 
 The app entry point renders the Inventory Management workspace. It supports item CRUD,
 server-side name search, All/Low Stock filters, inventory valuation, and CRUD screens
-for Categories, Unit Types, and Stock Batches. No additional module, router, or dependency was added.
+for the Inventory Dashboard, Categories, Unit Types, and Stock Batches. No additional
+module, router, or dependency was added.
 
 ### Run locally
 
 1. Copy `.env.example` to `.env.local`. Set `VITE_API_BASE_URL` to the backend origin
-   (default `http://localhost:8080`, without `/api`). Restart Vite after changes.
+   (default `http://localhost:2020`, matching Spring Boot's configured port, without `/api`). `VITE_CURRENCY` controls the
+   ISO currency used for inventory valuation and defaults to `LKR`. Restart Vite after changes.
 2. Run the Spring Boot backend with MySQL configured. Categories and unit types
    must already exist for item creation. The backend must allow the frontend origin
    through its existing CORS/security configuration.
 3. Run `npm install` if dependencies are missing, then `npm run dev`.
-4. Run `npm run build`, `npm run lint`, and `node --test tests/inventory.test.mjs tests/stock.test.mjs`
+4. Run `npm run build`, `npm run lint`, and
+   `node --test tests/inventory.test.mjs tests/stock.test.mjs tests/dashboard.test.mjs`
    for verification.
 
 The application always calls the backend. Connection failures display an error and
@@ -24,7 +27,7 @@ retry controls; no sample inventory replaces unavailable data.
 
 ### Integration details
 
-- Entry: `src/App.jsx` selects Inventory Items, Categories, Unit Types, or Stock Batches from hash-based
+- Entry: `src/App.jsx` selects Dashboard, Inventory Items, Categories, Unit Types, or Stock Batches from hash-based
   workspace navigation. Each page uses the shared `InventoryLayout`.
 - Reusable UI: `src/components/inventory/`; scoped CSS: `src/styles/inventory.css`.
 - Fetch API adapter: `src/api/inventoryApi.js`.
@@ -32,12 +35,37 @@ retry controls; no sample inventory replaces unavailable data.
   `reorderThreshold`, `description`. Item names are limited to the backend's 60 characters.
 - Edit uses `GET /api/inventory-items/{id}` followed by full `PUT` with an absolute
   `totalQuantity`. The separate `updateInventoryItemQuantity(id, quantityDelta)`
-  helper supports quantity adjustments; the create/edit form does not call it.
+  helper powers the separate **Adjust Qty** dialog. Negative deltas reduce stock;
+  validation prevents a negative resulting quantity. The create/edit form continues
+  to use the full-item PUT.
 - Low stock means `totalQuantity <= reorderThreshold`. When searching with the Low
   Stock filter, the search endpoint runs first and its results use the same predicate.
 - Summary cards reflect the current filtered view. Monetary values show two decimal
   places without assuming a currency not specified by the backend.
 - Unit tests stub transport only within the test process; they do not access MySQL.
+- The backend allows Vite's `localhost:5173` and `127.0.0.1:5173` origins on inventory
+  endpoints and the read-only branch lookup. For another frontend origin, configure
+  the backend property `inventory.frontend-origin` (or `INVENTORY_FRONTEND_ORIGIN`).
+  Existing team origins and authentication are unchanged.
+- To rerun the real integration checks against the local backend on port 2020:
+  `node tests/live-inventory.mjs --run-live`. This explicitly opted-in test creates
+  uniquely named records in MySQL and deletes only its own records afterward.
+  Use a development/test database with an existing branch; no branch is created.
+  Run `node --test tests/quantity.test.mjs` for the adjustment validation tests.
+
+### Inventory Dashboard
+
+- The workspace opens the dashboard by default and also exposes it at `#/dashboard`.
+- `GET /api/inventory/dashboard` supplies `totalItems`, `totalQuantity`,
+  `lowStockItems`, `expiredBatches`, `expiringSoonBatches`, and
+  `totalInventoryValue` for the six summary cards.
+- `GET /api/inventory-items/low-stock` supplies the Low Stock section.
+- `GET /api/stocks/expiring?days=30` supplies the Expiring Soon section.
+  `GET /api/inventory-items` resolves its `itemIds` into readable item names.
+- Inventory value uses `Intl.NumberFormat` with an explicit ISO currency code.
+  Configure it with `VITE_CURRENCY`; the default is `LKR`.
+- The dashboard contains inventory health only. It does not derive branch performance,
+  procurement, supplier, organization, transfer, or forecasting analytics.
 
 ### Stock batch and expiry management
 

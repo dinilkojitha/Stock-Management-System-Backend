@@ -1,7 +1,7 @@
 import InventoryIcon from './InventoryIcon.jsx'
 import { formatQuantity, formatValue, inventoryValue, isLowStock } from './inventoryUtils.js'
 
-export default function InventoryItemTable({ items, categories, unitTypes, onEdit, onDelete }) {
+export default function InventoryItemTable({ items, categories, unitTypes, onEdit, onDelete, onAdjust }) {
   const categoryNames = new Map(categories.map((category) => [String(category.categoryId), category.name]))
   const unitNames = new Map(unitTypes.map((unit) => [String(unit.unitTypeId), unit.name]))
 
@@ -23,7 +23,7 @@ export default function InventoryItemTable({ items, categories, unitTypes, onEdi
               <td className="inv-numeric inv-value-cell">{formatValue(inventoryValue(item))}</td>
               <td className="inv-numeric">{formatQuantity(item.reorderThreshold)}</td>
               <td><span className={`inv-status ${low ? 'inv-status--low' : 'inv-status--ok'}`}><span />{low ? 'LOW STOCK' : 'IN STOCK'}</span></td>
-              <td><div className="inv-row-actions"><button className="inv-text-button" aria-label={`View or edit ${item.name}`} onClick={() => onEdit(item.id)}><InventoryIcon name="edit" />View/Edit</button><button className="inv-icon-button inv-delete-button" aria-label={`Delete ${item.name}`} title="Delete item" onClick={() => onDelete(item)}><InventoryIcon name="trash" /></button></div></td>
+              <td><div className="inv-row-actions"><button className="inv-text-button" aria-label={`View or edit ${item.name}`} onClick={() => onEdit(item.id)}><InventoryIcon name="edit" />View/Edit</button><button className="inv-text-button" aria-label={`Adjust quantity for ${item.name}`} onClick={() => onAdjust(item.id)}>Adjust Qty</button><button className="inv-icon-button inv-delete-button" aria-label={`Delete ${item.name}`} title="Delete item" onClick={() => onDelete(item)}><InventoryIcon name="trash" /></button></div></td>
             </tr>
           )
         })}</tbody>

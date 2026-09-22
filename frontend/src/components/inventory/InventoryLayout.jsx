@@ -3,6 +3,7 @@ import InventoryIcon from './InventoryIcon.jsx'
 import '../../styles/inventory.css'
 
 const navigation = [
+  { id: 'dashboard', label: 'Dashboard', href: '#/dashboard' },
   { id: 'items', label: 'Inventory Items', href: '#/inventory-items' },
   { id: 'categories', label: 'Categories', href: '#/categories' },
   { id: 'unit-types', label: 'Unit Types', href: '#/unit-types' },
@@ -19,7 +20,7 @@ export default function InventoryLayout({ active, eyebrow, title, description, a
   return (
     <div className="inventory-app">
       <header className="inv-topbar">
-        <a className="inv-brand" href="#/inventory-items" aria-label="StockMaster inventory">
+        <a className="inv-brand" href="#/dashboard" aria-label="StockMaster inventory dashboard">
           <span className="inv-brand-mark"><InventoryIcon name="box" /></span>
           <span>Stock<span>Master</span><small>HOTEL INVENTORY</small></span>
         </a>
