@@ -34,6 +34,7 @@ public class UserController {
         return ResponseEntity.created(URI.create("/api/users/" + created.getId())).body(created);
     }
 
+
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAll());
@@ -50,8 +51,16 @@ public class UserController {
         return ResponseEntity.ok(userService.update(id, request));
     }
 
-
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
+        userService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 
 }
+
+
+
+
+
 

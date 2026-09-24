@@ -35,6 +35,16 @@ public class UserService {
     }
 
     @Transactional
+    public UserResponse create(UserRequest request) {
+        validatePassword(request, true);
+        User user = new User();
+        apply(user, request, true);
+        return toResponse(userRepository.save(user));
+    }
+
+
+
+    @Transactional
     public List<UserResponse> getAll() {
         return userRepository.findAll().stream().map(this::toResponse).toList();
     }
@@ -91,6 +101,17 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "password must not be blank");
         }
     }
+
+    private UserResponse toResponse(User user) {
+        return new UserResponse(user.getId(), user.getFullName(), user.getRole().getId(),
+                user.getRole().getName(), user.getEmail(), user.getPhoneNumber(),
+                user.getDepartment().getId(), user.getDepartment().getName());
+    }
+
+    private String trim(String value) {
+        return value == null ? null : value.trim();
+    }
+
 
 
 
