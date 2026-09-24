@@ -22,7 +22,7 @@ public class Branchtransferrequest {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "branch_branchid", nullable = false)
+    @JoinColumn(name = "source_branchid", nullable = false)
     private Branch sourceBranch;
 
     @NotNull

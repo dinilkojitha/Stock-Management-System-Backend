@@ -31,7 +31,7 @@ public class BranchController {
         return branchService.getAllBranchesOverview();
     }
 
-    @GetMapping("/performance")
+    @GetMapping("/performance")             // work
     public Object performance() {
         return branchService.getAllBranchPerformance();
     }
@@ -56,12 +56,12 @@ public class BranchController {
         return branchService.getBranchStockSummary(id);
     }
 
-    @GetMapping("/{id}/inventory")
+    @GetMapping("/{id}/inventory")             // work
     public Object inventory(@PathVariable("id") Integer id) {
         return branchService.getBranchInventory(id);
     }
 
-    @GetMapping("/{id}/performance")
+    @GetMapping("/{id}/performance")             // work
     public Object branchPerformance(@PathVariable("id") Integer id) {
         return branchService.getBranchPerformance(id);
     }
