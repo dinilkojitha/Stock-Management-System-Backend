@@ -34,6 +34,24 @@ public class UserController {
         return ResponseEntity.created(URI.create("/api/users/" + created.getId())).body(created);
     }
 
+    @GetMapping
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Integer id) {
+        return ResponseEntity.ok(userService.getById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Integer id,
+                                                   @Valid @RequestBody UserRequest request) {
+        return ResponseEntity.ok(userService.update(id, request));
+    }
+
+
+
 
 }
 

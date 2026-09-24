@@ -34,6 +34,31 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional
+    public List<UserResponse> getAll() {
+        return userRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Transactional
+    public UserResponse getById(Integer id) {
+        return toResponse(find(id));
+    }
+
+    @Transactional
+    public UserResponse update(Integer id, UserRequest request) {
+        User user = find(id);
+        validatePassword(request, false);
+        apply(user, request, false);
+        return toResponse(userRepository.save(user));
+    }
+
+    @Transactional
+    public void delete(Integer id) {
+        userRepository.delete(find(id));
+    }
+
+
+
 
 
 
