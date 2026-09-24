@@ -55,6 +55,19 @@ public class RoleService {
         }
     }
 
+    private void validateRole(Role role) {
+        if (role == null || role.getName() == null || role.getName().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name must not be blank");
+        }
+        if (role.getName().length() > 45) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name must not exceed 45 characters");
+        }
+        if (role.getAccessLevel() != null && (role.getAccessLevel() < 0 || role.getAccessLevel() > 100)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "accessLevel must be between 0 and 100");
+        }
+    }
+
+
 
 
 
