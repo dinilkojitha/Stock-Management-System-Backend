@@ -67,16 +67,7 @@ public class RoleService {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
+    private ResponseStatusException roleNotFound(Integer id) {
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, "Role with ID " + id + " was not found");
+    }
 }
