@@ -44,7 +44,7 @@ public class RoleService {
         return roleRepository.save(existingRole);
     }
 
-    Transactional
+    @Transactional
     public void deleteRole(Integer id) {
         Role role = getRoleById(id);
         try {
