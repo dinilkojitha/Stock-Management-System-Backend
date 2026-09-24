@@ -71,6 +71,13 @@ public class UserService {
         }
     }
 
+    private User find(Integer id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + id));
+    }
+
+
+
 
 
 
