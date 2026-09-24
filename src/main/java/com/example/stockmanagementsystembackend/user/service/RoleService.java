@@ -35,6 +35,17 @@ public class RoleService {
         return roleRepository.findById(id).orElseThrow(() -> roleNotFound(id));
     }
 
+    @Transactional
+    public Role updateRole(Integer id, Role role) {
+        validateRole(role);
+        Role existingRole = getRoleById(id);
+        existingRole.setName(role.getName());
+        existingRole.setAccessLevel(role.getAccessLevel());
+        return roleRepository.save(existingRole);
+    }
+
+
+
 
 
 
