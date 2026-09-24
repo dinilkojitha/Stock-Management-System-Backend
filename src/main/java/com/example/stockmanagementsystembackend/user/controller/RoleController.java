@@ -28,6 +28,14 @@ public class RoleController {
         this.roleService = roleService;
     }
 
+    @PostMapping
+    public ResponseEntity<Role> createRole(@Valid @RequestBody Role role) {
+        Role createdRole = roleService.createRole(role);
+        URI location = URI.create("/api/roles/" + createdRole.getId());
+        return ResponseEntity.created(location).body(createdRole);
+    }
+
+
 
 
 }

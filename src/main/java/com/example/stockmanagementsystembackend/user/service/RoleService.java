@@ -17,4 +17,16 @@ public class RoleService {
     public RoleService(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
     }
+
+    @Transactional
+    public Role createRole(Role role) {
+        validateRole(role);
+        role.setId(null);
+        return roleRepository.save(role);
+    }
+
+
+
+
+
 }
