@@ -25,5 +25,17 @@ public class UserService {
     private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Autowired
+    public UserService(UserRepository userRepository, RoleRepository roleRepository,
+                       DepartmentRepository departmentRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.departmentRepository = departmentRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+
+
+
 
 }

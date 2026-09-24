@@ -28,6 +28,11 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PostMapping
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest request) {
+        UserResponse created = userService.create(request);
+        return ResponseEntity.created(URI.create("/api/users/" + created.getId())).body(created);
+    }
 
 
 }
