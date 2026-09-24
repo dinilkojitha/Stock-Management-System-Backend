@@ -30,6 +30,13 @@ public class RoleService {
         return roleRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public Role getRoleById(Integer id) {
+        return roleRepository.findById(id).orElseThrow(() -> roleNotFound(id));
+    }
+
+
+
 
 
 

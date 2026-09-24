@@ -40,6 +40,14 @@ public class RoleController {
         return ResponseEntity.ok(roleService.getAllRoles());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Role> getRoleById(@PathVariable Integer id) {
+        return ResponseEntity.ok(roleService.getRoleById(id));
+    }
+    
+
+
+
 
 
 
