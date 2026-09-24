@@ -23,7 +23,7 @@ public class InventoryItem {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "Category_categoryID", nullable = false)
-    private Category categoryCategoryid;
+    private Category categoryCategoryid;                                        //
 
     @Column(name = "totalQuantity")
     private Double totalQuantity;
