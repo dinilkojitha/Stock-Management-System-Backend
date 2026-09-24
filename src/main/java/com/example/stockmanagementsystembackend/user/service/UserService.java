@@ -81,6 +81,13 @@ public class UserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found: " + id));
     }
 
+    private Department findDepartment(Integer id) {
+        return departmentRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Department not found: " + id));
+    }
+
+
+
 
 
 
