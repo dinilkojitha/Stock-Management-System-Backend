@@ -86,6 +86,15 @@ public class UserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Department not found: " + id));
     }
 
+    private void validatePassword(UserRequest request, boolean required) {
+        if (request == null || required && (request.getPassword() == null || request.getPassword().isBlank())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "password must not be blank");
+        }
+    }
+
+
+
+
 
 
 
