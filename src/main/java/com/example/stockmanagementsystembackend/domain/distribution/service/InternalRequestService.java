@@ -78,6 +78,7 @@ public class InternalRequestService {
         request.setRequestedByUser(user);
 
         request.setRequestedAt(dto.getRequestedAt());
+        request.setEmergencyRequest(dto.getEmergencyRequest());
         request.setStatus(dto.getStatus());
 
         Internalrequest savedRequest=internalRequestRepository.save(request);

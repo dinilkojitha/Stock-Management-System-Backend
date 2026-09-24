@@ -41,4 +41,7 @@ public class Internalrequest {
     @Column(name = "status", length = 45)
     private String status;
 
+    @Column(name = "emergency_request", nullable = false)
+    private Boolean emergencyRequest = false;
+
 }

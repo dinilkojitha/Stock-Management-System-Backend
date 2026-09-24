@@ -16,6 +16,8 @@ public class CreateInternalRequestDTO {
 
     private Instant requestedAt;
 
+    private Boolean emergencyRequest = false;
+
     private String status;
 
     private List<RequestItemDTO> items;
