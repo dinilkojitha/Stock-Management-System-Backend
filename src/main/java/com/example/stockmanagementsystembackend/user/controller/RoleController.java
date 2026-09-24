@@ -35,6 +35,13 @@ public class RoleController {
         return ResponseEntity.created(location).body(createdRole);
     }
 
+    @GetMapping
+    public ResponseEntity<List<Role>> getAllRoles() {
+        return ResponseEntity.ok(roleService.getAllRoles());
+    }
+
+
+
 
 
 
