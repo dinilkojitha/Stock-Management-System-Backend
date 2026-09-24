@@ -22,6 +22,11 @@ public class Branchtransferrequest {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "branch_branchid", nullable = false)
+    private Branch sourceBranch;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "destination_branch_id", nullable = false)
     private Branch destinationBranch;
 

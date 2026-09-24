@@ -3,7 +3,6 @@ package com.example.stockmanagementsystembackend.domain.organization.controller;
 import com.example.stockmanagementsystembackend.domain.organization.service.BranchService;
 import com.example.stockmanagementsystembackend.domain.organization.dto.request.BranchRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin
@@ -11,8 +10,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "/api/branches")
 public class BranchController {
 
-    @Autowired
-    private BranchService branchService;
+    private final BranchService branchService;
+
+    public BranchController(BranchService branchService) {
+        this.branchService = branchService;
+    }
 
     @PostMapping("/create")         // work
     public Object create(@Valid @RequestBody BranchRequest request){
@@ -29,24 +31,39 @@ public class BranchController {
         return branchService.getAllBranchesOverview();
     }
 
+    @GetMapping("/performance")
+    public Object performance() {
+        return branchService.getAllBranchPerformance();
+    }
+
     @GetMapping("/{id}")             // work
-    public Object get(@PathVariable Integer id) {
+    public Object get(@PathVariable("id") Integer id) {
         return branchService.getBranchById(id);
     }
 
-    @PutMapping("/update/{id}")             // work
-    public Object update(@PathVariable Integer id, @Valid @RequestBody BranchRequest request) {
+    @PutMapping("/{id}/update")             // work
+    public Object update(@PathVariable("id") Integer id, @Valid @RequestBody BranchRequest request) {
         return branchService.updateBranch(id, request);
     }
 
-    @DeleteMapping("/delete/{id}")             // work
-    public void delete(@PathVariable Integer id) {
+    @DeleteMapping("/{id}/delete")             // work
+    public void delete(@PathVariable("id") Integer id) {
         branchService.deleteBranch(id);
     }
 
-    @GetMapping("/stock-summary/{id}")             // work
-    public Object stockSummary(@PathVariable Integer id) {
+    @GetMapping("/{id}/stock-summary")             // work
+    public Object stockSummary(@PathVariable("id") Integer id) {
         return branchService.getBranchStockSummary(id);
+    }
+
+    @GetMapping("/{id}/inventory")
+    public Object inventory(@PathVariable("id") Integer id) {
+        return branchService.getBranchInventory(id);
+    }
+
+    @GetMapping("/{id}/performance")
+    public Object branchPerformance(@PathVariable("id") Integer id) {
+        return branchService.getBranchPerformance(id);
     }
 
 
