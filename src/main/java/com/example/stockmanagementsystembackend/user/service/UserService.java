@@ -57,6 +57,22 @@ public class UserService {
         userRepository.delete(find(id));
     }
 
+    private void apply(User user, UserRequest request, boolean creating) {
+        if (request == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is required");
+        }
+        user.setFullName(trim(request.getFullName()));
+        user.setEmail(trim(request.getEmail()));
+        user.setPhoneNumber(trim(request.getPhoneNumber()));
+        user.setRole(findRole(request.getRoleId()));
+        user.setDepartment(findDepartment(request.getDepartmentId()));
+        if (creating || request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+    }
+
+
+
 
 
 
