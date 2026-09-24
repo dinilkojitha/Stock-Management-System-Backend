@@ -44,6 +44,18 @@ public class RoleService {
         return roleRepository.save(existingRole);
     }
 
+    Transactional
+    public void deleteRole(Integer id) {
+        Role role = getRoleById(id);
+        try {
+            roleRepository.delete(role);
+            roleRepository.flush();
+        } catch (DataIntegrityViolationException exception) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Role cannot be deleted because it is assigned to a user");
+        }
+    }
+
+
 
 
 

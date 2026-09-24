@@ -44,13 +44,17 @@ public class RoleController {
     public ResponseEntity<Role> getRoleById(@PathVariable Integer id) {
         return ResponseEntity.ok(roleService.getRoleById(id));
     }
-    
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Role> updateRole(@PathVariable Integer id, @Valid @RequestBody Role role) {
+        return ResponseEntity.ok(roleService.updateRole(id, role));
+    }
 
-
-
-
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRole(@PathVariable Integer id) {
+        roleService.deleteRole(id);
+        return ResponseEntity.noContent().build();
+    }
 
 
 
