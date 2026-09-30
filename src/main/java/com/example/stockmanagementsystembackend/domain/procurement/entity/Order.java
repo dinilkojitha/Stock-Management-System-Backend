@@ -25,6 +25,10 @@ public class Order {
     @JoinColumn(name = "created_by_user_id", nullable = false)
     private User createdByUser;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "supplier_id", nullable = false)
+    private Supplier supplier;
+
     @Column(name = "order_date")
     private Instant orderDate;
 
