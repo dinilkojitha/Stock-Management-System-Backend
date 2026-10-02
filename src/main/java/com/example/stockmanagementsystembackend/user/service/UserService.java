@@ -1,17 +1,132 @@
 package com.example.stockmanagementsystembackend.user.service;
 
+import com.example.stockmanagementsystembackend.domain.organization.entity.Department;
+import com.example.stockmanagementsystembackend.domain.organization.repository.DepartmentRepository;
+import com.example.stockmanagementsystembackend.user.dto.request.UserRequest;
+import com.example.stockmanagementsystembackend.user.dto.response.UserResponse;
+import com.example.stockmanagementsystembackend.user.entity.Role;
+import com.example.stockmanagementsystembackend.user.entity.User;
 import com.example.stockmanagementsystembackend.user.repository.UserRepository;
+import com.example.stockmanagementsystembackend.user.repository.RoleRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Service
 public class UserService {
 
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final DepartmentRepository departmentRepository;
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public UserService(UserRepository userRepository, RoleRepository roleRepository,
+                       DepartmentRepository departmentRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.departmentRepository = departmentRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Transactional
+    public UserResponse create(UserRequest request) {
+        validatePassword(request, true);
+        User user = new User();
+        apply(user, request, true);
+        return toResponse(userRepository.save(user));
+    }
+
+
+
+    @Transactional
+    public List<UserResponse> getAll() {
+        return userRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Transactional
+    public UserResponse getById(Integer id) {
+        return toResponse(find(id));
+    }
+
+    @Transactional
+    public UserResponse update(Integer id, UserRequest request) {
+        User user = find(id);
+        validatePassword(request, false);
+        apply(user, request, false);
+        return toResponse(userRepository.save(user));
+    }
+
+    @Transactional
+    public void delete(Integer id) {
+        userRepository.delete(find(id));
+    }
+
+    private void apply(User user, UserRequest request, boolean creating) {
+        if (request == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is required");
+        }
+        user.setFullName(trim(request.getFullName()));
+        user.setEmail(trim(request.getEmail()));
+        user.setPhoneNumber(trim(request.getPhoneNumber()));
+        user.setRole(findRole(request.getRoleId()));
+        user.setDepartment(findDepartment(request.getDepartmentId()));
+        if (creating || request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+    }
+
+    private User find(Integer id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + id));
+    }
+
+    private Role findRole(Integer id) {
+        return roleRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found: " + id));
+    }
+
+    private Department findDepartment(Integer id) {
+        return departmentRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Department not found: " + id));
+    }
+
+    private void validatePassword(UserRequest request, boolean required) {
+        if (request == null || required && (request.getPassword() == null || request.getPassword().isBlank())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "password must not be blank");
+        }
+    }
+
+    private UserResponse toResponse(User user) {
+        return new UserResponse(user.getId(), user.getFullName(), user.getRole().getId(),
+                user.getRole().getName(), user.getEmail(), user.getPhoneNumber(),
+                user.getDepartment().getId(), user.getDepartment().getName());
+    }
+
+    private String trim(String value) {
+        return value == null ? null : value.trim();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }
