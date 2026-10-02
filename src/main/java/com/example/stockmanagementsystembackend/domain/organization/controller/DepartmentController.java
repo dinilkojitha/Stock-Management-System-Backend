@@ -3,6 +3,7 @@ package com.example.stockmanagementsystembackend.domain.organization.controller;
 import com.example.stockmanagementsystembackend.domain.organization.dto.request.DepartmentRequest;
 import com.example.stockmanagementsystembackend.domain.organization.service.DepartmentService;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +20,7 @@ public class DepartmentController {
 	}
 
 	@PostMapping("/create")         // work
-	public Object create(@Valid @RequestBody DepartmentRequest request) {
+	public ResponseEntity<String> create(@Valid @RequestBody DepartmentRequest request) {
 		return departmentService.createDepartment(request);
 	}
 

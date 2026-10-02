@@ -6,7 +6,7 @@ import com.example.stockmanagementsystembackend.domain.organization.entity.*;
 import com.example.stockmanagementsystembackend.domain.organization.repository.*;
 import com.example.stockmanagementsystembackend.user.repository.UserRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
 
@@ -25,23 +25,21 @@ public class DepartmentService {
 		this.userRepository = userRepository;
 	}
 
-	public DepartmentResponse createDepartment(DepartmentRequest request) {
+	public ResponseEntity<String> createDepartment(DepartmentRequest request) {
 		Department d = new Department();
 		apply(d, request);
-		return response(departmentRepository.save(d));
+		response(departmentRepository.save(d));
+		return ResponseEntity.ok("Department created successfully");
 	}
 
-	@Transactional(readOnly = true)
 	public List<DepartmentResponse> getAllDepartments() {
 		return departmentRepository.findAll().stream().map(this::response).toList();
 	}
 
-	@Transactional(readOnly = true)
 	public DepartmentResponse getDepartmentById(Integer id) {
 		return response(find(id));
 	}
 
-	@Transactional(readOnly = true)
 	public List<DepartmentResponse> getDepartmentsByBranch(Integer id) {
 		return departmentRepository.findByBranch(branch(id)).stream().map(this::response).toList();
 	}

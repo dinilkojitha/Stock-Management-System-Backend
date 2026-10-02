@@ -7,7 +7,6 @@ import com.example.stockmanagementsystembackend.domain.organization.repository.D
 import com.example.stockmanagementsystembackend.domain.stock.repository.StockRepository;
 import com.example.stockmanagementsystembackend.domain.stock.repository.StockTransferRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
 
@@ -38,12 +37,10 @@ public class BranchService {
         return response(branchRepository.save(branch));
     }
 
-    @Transactional(readOnly = true)
     public List<BranchResponse> getAllBranches() {
         return branchRepository.findAll().stream().map(this::response).toList();
     }
 
-    @Transactional(readOnly = true)
     public BranchResponse getBranchById(Integer id) {
         return response(find(id));
     }
@@ -62,47 +59,42 @@ public class BranchService {
         branchRepository.delete(branch);
     }
 
-    @Transactional(readOnly = true)
     public BranchSummaryResponse getBranchStockSummary(Integer id) {
         return summary(find(id));
     }
 
-    @Transactional(readOnly = true)
     public BranchOverviewResponse getAllBranchesOverview() {
         List<BranchSummaryResponse> branches = branchRepository.findAll().stream().map(this::summary).toList();
         return new BranchOverviewResponse(branches, branches.size());
     }
 
-        @Transactional(readOnly = true)
-        public List<BranchInventoryResponse> getBranchInventory(Integer id) {
-        Branch branch = find(id);
-        return stockRepository.findByBranch(branch).stream()
-            .map(stock -> new BranchInventoryResponse(stock.getId(), branch.getId(), branch.getName(),
-                stock.getQuantity(), stock.getManufactureDate(), stock.getExpiryDate()))
-            .toList();
-        }
+    public List<BranchInventoryResponse> getBranchInventory(Integer id) {
+    Branch branch = find(id);
+    return stockRepository.findByBranch(branch).stream()
+        .map(stock -> new BranchInventoryResponse(stock.getId(), branch.getId(), branch.getName(),
+            stock.getQuantity(), stock.getManufactureDate(), stock.getExpiryDate()))
+        .toList();
+    }
 
-        @Transactional(readOnly = true)
-        public BranchPerformanceResponse getBranchPerformance(Integer id) {
-        Branch branch = find(id);
-        List<com.example.stockmanagementsystembackend.domain.stock.entity.Stock> stock = stockRepository.findByBranch(branch);
-        double totalQuantity = stock.stream()
-            .map(com.example.stockmanagementsystembackend.domain.stock.entity.Stock::getQuantity)
-            .filter(java.util.Objects::nonNull)
-            .mapToDouble(Double::doubleValue)
-            .sum();
-        return new BranchPerformanceResponse(branch.getId(), branch.getName(), stock.size(), totalQuantity,
-            departmentRepository.findByBranch(branch).size(),
-            stockTransferRepository.countByDestinationBranch(branch),
-            stockTransferRepository.countBySourceBranch(branch),
-            stockTransferRepository.countByDestinationBranchAndStatus_NameIgnoreCase(branch, "Pending"),
-            stockTransferRepository.countBySourceBranchAndStatus_NameIgnoreCase(branch, "Pending"));
-        }
+    public BranchPerformanceResponse getBranchPerformance(Integer id) {
+    Branch branch = find(id);
+    List<com.example.stockmanagementsystembackend.domain.stock.entity.Stock> stock = stockRepository.findByBranch(branch);
+    double totalQuantity = stock.stream()
+        .map(com.example.stockmanagementsystembackend.domain.stock.entity.Stock::getQuantity)
+        .filter(java.util.Objects::nonNull)
+        .mapToDouble(Double::doubleValue)
+        .sum();
+    return new BranchPerformanceResponse(branch.getId(), branch.getName(), stock.size(), totalQuantity,
+        departmentRepository.findByBranch(branch).size(),
+        stockTransferRepository.countByDestinationBranch(branch),
+        stockTransferRepository.countBySourceBranch(branch),
+        stockTransferRepository.countByDestinationBranchAndStatus_NameIgnoreCase(branch, "Pending"),
+        stockTransferRepository.countBySourceBranchAndStatus_NameIgnoreCase(branch, "Pending"));
+    }
 
-        @Transactional(readOnly = true)
-        public List<BranchPerformanceResponse> getAllBranchPerformance() {
-        return branchRepository.findAll().stream().map(branch -> getBranchPerformance(branch.getId())).toList();
-        }
+    public List<BranchPerformanceResponse> getAllBranchPerformance() {
+    return branchRepository.findAll().stream().map(branch -> getBranchPerformance(branch.getId())).toList();
+    }
 
     private Branch find(Integer id) {
         return branchRepository.findById(id)

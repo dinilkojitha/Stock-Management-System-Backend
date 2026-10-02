@@ -38,3 +38,4 @@ out/
 
 ### Test UI (local only, not for GitHub) ###
 test-ui/
+frontend
