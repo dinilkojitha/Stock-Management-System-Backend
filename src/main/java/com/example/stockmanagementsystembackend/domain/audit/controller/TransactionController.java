@@ -1,12 +1,116 @@
 package com.example.stockmanagementsystembackend.domain.audit.controller;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.stockmanagementsystembackend.domain.audit.entity.Transaction;
+import com.example.stockmanagementsystembackend.domain.audit.service.TransactionService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin
 @RestController
-@RequestMapping(value = "/api/transactions")
+@RequestMapping("/api/transactions")
 public class TransactionController {
+
+    TransactionService transactionService;
+
+    public TransactionController(
+            TransactionService transactionService
+    ) {
+        this.transactionService = transactionService;
+    }
+
+    // CREATE
+    @PostMapping("/add-new")
+    public ResponseEntity<Transaction> add(
+            @RequestBody Transaction transaction
+    ) {
+
+        Transaction savedTransaction =
+                transactionService.addTransaction(transaction);
+
+        return new ResponseEntity<>(
+                savedTransaction,
+                HttpStatus.CREATED
+        );
+    }
+
+    // GET ALL
+    @GetMapping
+    public ResponseEntity<List<Transaction>> getAll() {
+
+        return ResponseEntity.ok(
+                transactionService.getAllTransactions()
+        );
+    }
+
+    // GET BY ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Transaction> getById(
+            @PathVariable Integer id
+    ) {
+
+        return ResponseEntity.ok(
+                transactionService.getTransactionById(id)
+        );
+    }
+
+    // UPDATE
+    @PutMapping("/{id}")
+    public ResponseEntity<Transaction> update(
+            @PathVariable Integer id,
+            @RequestBody Transaction transaction
+    ) {
+
+        return ResponseEntity.ok(
+                transactionService.updateTransaction(
+                        id,
+                        transaction
+                )
+        );
+    }
+
+    // DELETE
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable Integer id
+    ) {
+
+        transactionService.deleteTransaction(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    // GET BY USER
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Transaction>>
+    getByUser(
+            @PathVariable Integer userId
+    ) {
+
+        return ResponseEntity.ok(
+                transactionService
+                        .getTransactionsByUser(userId)
+        );
+    }
+
+    @GetMapping("/type/{transactionType}")
+    public ResponseEntity<List<Transaction>>
+    getByType(
+            @PathVariable String transactionType
+    ) {
+
+        return ResponseEntity.ok(
+                transactionService
+                        .getTransactionsByType(transactionType)
+        );
+    }
+
+
+
+
+
+
 
 }
