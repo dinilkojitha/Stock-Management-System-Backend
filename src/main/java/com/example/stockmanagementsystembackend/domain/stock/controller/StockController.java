@@ -68,4 +68,5 @@ public class StockController {
                 ProblemDetail.forStatusAndDetail(exception.getStatusCode(), exception.getReason()));
     }
 
+
 }

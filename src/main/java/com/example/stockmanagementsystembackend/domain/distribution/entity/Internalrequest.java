@@ -1,3 +1,7 @@
+/**
+ * Main entity representing a department or branch stock requisition order.
+ */
+
 package com.example.stockmanagementsystembackend.domain.distribution.entity;
 
 import com.example.stockmanagementsystembackend.domain.organization.entity.Department;
@@ -36,5 +40,8 @@ public class Internalrequest {
     @Size(max = 45)
     @Column(name = "status", length = 45)
     private String status;
+
+    @Column(name = "emergency_request", nullable = false)
+    private Boolean emergencyRequest = false;
 
 }

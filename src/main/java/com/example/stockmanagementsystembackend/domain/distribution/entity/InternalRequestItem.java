@@ -21,4 +21,7 @@ public class InternalRequestItem {
     @Column(name = "quantity")
     private Double quantity;
 
+    @Column(name = "allocated_quantity")
+    private Double allocatedQuantity;
+
 }

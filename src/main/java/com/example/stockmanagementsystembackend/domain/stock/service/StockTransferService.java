@@ -50,6 +50,7 @@ public class StockTransferService {
 		Status status = statusRepository.findById(request.getStatusId())
 				.orElseThrow(() -> notFound("Status", request.getStatusId()));
 		Branchtransferrequest transfer = new Branchtransferrequest();
+		transfer.setSourceBranch(from);
 		transfer.setDestinationBranch(to);
 		transfer.setRequestedByUser(user);
 		transfer.setStatus(status);
@@ -124,8 +125,9 @@ public class StockTransferService {
 	}
 
 	private StockTransferResponse response(Branchtransferrequest transfer) {
-		Integer fromBranchId = null;
-		String fromBranchName = null;
+		Branch from = transfer.getSourceBranch();
+		Integer fromBranchId = from.getId();
+		String fromBranchName = from.getName();
 		Branch to = transfer.getDestinationBranch();
 		User user = transfer.getRequestedByUser();
 		Status status = transfer.getStatus();

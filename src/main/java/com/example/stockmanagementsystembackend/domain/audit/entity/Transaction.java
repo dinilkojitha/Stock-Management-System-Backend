@@ -26,7 +26,7 @@ public class Transaction {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "User_userID", nullable = false)
+    @JoinColumn(name = "User_userID", nullable = false)    //
     private User userUserid;
 
     @NotNull
