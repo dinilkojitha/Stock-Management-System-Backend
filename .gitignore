@@ -1,9 +1,9 @@
 HELP.md
-.gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+/target/
+
+### Gradle ###
+/.gradle/
+/build/
 
 ### STS ###
 .apt_generated
@@ -31,7 +31,6 @@ out/
 /nbbuild/
 /dist/
 /nbdist/
-/.nb-gradle/
 
 ### VS Code ###
 .vscode/
