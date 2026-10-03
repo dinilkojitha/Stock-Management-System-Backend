@@ -35,23 +35,23 @@ public class InventoryItem {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "Category_categoryID", nullable = false)
-    private Category categoryCategoryid;                                        //
+    @JoinColumn(name = "category", nullable = false)
+    private Category category;                                        //
 
     @Column(name = "totalQuantity")
     private Double totalQuantity;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "UnitType_unitID", nullable = false)
-    private UnitType unittypeUnitid;
+    @JoinColumn(name = "unitType", nullable = false)
+    private UnitType unitType;
 
     @Column(name = "unitPrice")
     private Double unitPrice;
 
     @Lob
-    @Column(name = "itemDescription")
-    private String itemDescription;
+    @Column(name = "description")
+    private String description;
 
     @Column(name = "reorderThreshold")
     private Double reorderThreshold;

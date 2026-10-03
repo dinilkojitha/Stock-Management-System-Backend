@@ -12,11 +12,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InventoryItemRepository extends JpaRepository<InventoryItem, Integer> {
-    List<InventoryItem> findByNameContainingIgnoreCaseOrderByNameAsc(String keyword);
+    List<InventoryItem> findByItemNameContainingIgnoreCaseOrderByItemNameAsc(String keyword);
 
-    List<InventoryItem> findByCategory_CategoryIdOrderByNameAsc(Integer categoryId);
+    List<InventoryItem> findByCategory_CategoryIdOrderByItemNameAsc(Integer categoryId);
 
-    @Query("select i from InventoryItem i where i.totalQuantity <= i.reorderThreshold order by i.name")
+    @Query("select i from InventoryItem i where i.totalQuantity <= i.reorderThreshold order by i.itemName")
     List<InventoryItem> findLowStock();
 
     // Serializes quantity adjustments and full updates without adding a version column.

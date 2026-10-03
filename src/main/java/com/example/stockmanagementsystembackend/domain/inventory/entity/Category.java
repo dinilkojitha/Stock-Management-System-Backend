@@ -10,7 +10,11 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "Category")
 public class Category {
@@ -29,55 +33,6 @@ public class Category {
     @Column(name = "description")
     private String description;
 
-    public Category() {
-    }
 
-    public Category(String name, String description) {
-        this.name = name;
-        this.description = description;
-    }
 
-    public Category(Integer categoryId, String name, String description) {
-        this.categoryId = categoryId;
-        this.name = name;
-        this.description = description;
-    }
-
-    public Integer getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Integer categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    /**
-     * Compatibility accessor for existing inventory relationships that still
-     * refer to a generic entity ID.
-     */
-    @JsonIgnore
-    public Integer getId() {
-        return categoryId;
-    }
-
-    @JsonIgnore
-    public void setId(Integer id) {
-        this.categoryId = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 }

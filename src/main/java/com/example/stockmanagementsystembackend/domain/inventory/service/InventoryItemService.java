@@ -67,7 +67,7 @@ public class InventoryItemService implements CrudService<InventoryItem, Integer>
         InventoryItem existingItem = inventoryItemRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> inventoryItemNotFound(id));
         attachReferences(inventoryItem);
-        existingItem.setName(inventoryItem.getName());
+        existingItem.setItemName(inventoryItem.getItemName());
         existingItem.setCategory(inventoryItem.getCategory());
         existingItem.setTotalQuantity(inventoryItem.getTotalQuantity());
         existingItem.setUnitType(inventoryItem.getUnitType());
@@ -80,7 +80,7 @@ public class InventoryItemService implements CrudService<InventoryItem, Integer>
 
     @Transactional(readOnly = true)
     public List<InventoryItem> search(String keyword) {
-        return inventoryItemRepository.findByNameContainingIgnoreCaseOrderByNameAsc(
+        return inventoryItemRepository.findByItemNameContainingIgnoreCaseOrderByItemNameAsc(
                 keyword == null ? "" : keyword.strip());
     }
 
@@ -89,7 +89,7 @@ public class InventoryItemService implements CrudService<InventoryItem, Integer>
         if (!categoryRepository.existsById(categoryId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category was not found");
         }
-        return inventoryItemRepository.findByCategory_CategoryIdOrderByNameAsc(categoryId);
+        return inventoryItemRepository.findByCategory_CategoryIdOrderByItemNameAsc(categoryId);
     }
 
     @Transactional(readOnly = true)
@@ -129,17 +129,17 @@ public class InventoryItemService implements CrudService<InventoryItem, Integer>
     }
 
     private void validateInventoryItem(InventoryItem inventoryItem) {
-        if (inventoryItem == null || inventoryItem.getName() == null || inventoryItem.getName().isBlank()) {
+        if (inventoryItem == null || inventoryItem.getItemName() == null || inventoryItem.getItemName().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name must not be blank");
         }
-        inventoryItem.setName(inventoryItem.getName());
-        if (inventoryItem.getName().length() > 60) {
+        inventoryItem.setItemName(inventoryItem.getItemName());
+        if (inventoryItem.getItemName().length() > 60) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name must not exceed 60 characters");
         }
-        if (inventoryItem.getCategoryId() == null) {
+        if (inventoryItem.getCategory() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "categoryId is required");
         }
-        if (inventoryItem.getUnitTypeId() == null) {
+        if (inventoryItem.getUnitType() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "unitTypeId is required");
         }
         validateNonNegative("totalQuantity", inventoryItem.getTotalQuantity());
@@ -154,14 +154,14 @@ public class InventoryItemService implements CrudService<InventoryItem, Integer>
     }
 
     private void attachReferences(InventoryItem inventoryItem) {
-        Integer categoryId = inventoryItem.getCategoryId();
+        Integer categoryId = inventoryItem.getCategory().getCategoryId();
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
                         "Category with ID " + categoryId + " was not found"
                 ));
 
-        Integer unitTypeId = inventoryItem.getUnitTypeId();
+        Integer unitTypeId = inventoryItem.getUnitType().getUnitTypeId();
         UnitType unitType = unitTypeRepository.findById(unitTypeId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
