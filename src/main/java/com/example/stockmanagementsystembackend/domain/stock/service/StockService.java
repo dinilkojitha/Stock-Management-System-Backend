@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class StockService implements CrudService<Stock, Integer> {
@@ -42,7 +43,7 @@ public class StockService implements CrudService<Stock, Integer> {
     @Override
     @Transactional
     public Stock save(Stock request) {
-        validate(request);
+        //        validate(request);
         if (request.getStockId() == null) {
             throw badRequest("stockId is required; Stock.stock_id is not auto-increment");
         }
@@ -52,7 +53,7 @@ public class StockService implements CrudService<Stock, Integer> {
         // A fresh entity always uses INSERT, including when the caller supplied an existing entity object.
         Stock stock = new Stock();
         stock.setStockId(request.getStockId());
-        apply(stock, request);
+        //        apply(stock, request);
         return persist(stock);
     }
 
@@ -69,12 +70,12 @@ public class StockService implements CrudService<Stock, Integer> {
     @Override
     @Transactional
     public Stock update(Integer stockId, Stock request) {
-        validate(request);
+//        validate(request);
         if (request.getStockId() != null && !stockId.equals(request.getStockId())) {
             throw badRequest("Body stockId must match the URL stockId");
         }
         Stock stock = stocks.findByIdForUpdate(stockId).orElseThrow(() -> notFound("Stock", stockId));
-        apply(stock, request);
+        //        apply(stock, request);
         return persist(stock);
     }
 
@@ -129,7 +130,7 @@ public class StockService implements CrudService<Stock, Integer> {
         if (stock.getQuantity() == null || !Double.isFinite(stock.getQuantity()) || stock.getQuantity() < 0) {
             throw badRequest("quantity must be finite and non-negative");
         }
-        if (stock.getBranchId() == null) throw badRequest("branchId is required");
+        if (stock.getBranch().getId() == null) throw badRequest("branchId is required");
         for (LocalDate date : new LocalDate[]{stock.getManufactureDate(), stock.getExpiryDate()}) {
             if (date != null && (date.getYear() < 1000 || date.getYear() > 9999)) {
                 throw badRequest("Dates must be within the MySQL DATE range (1000 through 9999)");
@@ -139,14 +140,14 @@ public class StockService implements CrudService<Stock, Integer> {
                 && stock.getExpiryDate().isBefore(stock.getManufactureDate())) {
             throw badRequest("expiryDate must not be earlier than manufactureDate");
         }
-        if (stock.getItemIds() == null || stock.getItemIds().contains(null)) {
+        if (stock.getItems() == null || stock.getItems().contains(null)) {
             throw badRequest("itemIds must be an array of non-null inventory item IDs");
         }
     }
 
     private void apply(Stock stock, Stock request) {
-        var branch = branches.findById(request.getBranchId()).orElseThrow(() -> badRequest("branchId does not reference an existing Branch"));
-        Set<Integer> itemIds = request.getItemIds();
+        var branch = branches.findById(request.getBranch().getId()).orElseThrow(() -> badRequest("branchId does not reference an existing Branch"));
+        Set<Integer> itemIds = request.getItems().stream().map(InventoryItem::getId).collect(Collectors.toSet());
         List<InventoryItem> associatedItems = items.findAllById(itemIds);
         if (associatedItems.size() != itemIds.size()) {
             throw badRequest("Every itemId must reference an existing InventoryItem");

@@ -2,6 +2,7 @@ package com.example.stockmanagementsystembackend.user.service;
 
 import com.example.stockmanagementsystembackend.domain.organization.entity.Department;
 import com.example.stockmanagementsystembackend.domain.organization.repository.DepartmentRepository;
+import com.example.stockmanagementsystembackend.user.dto.loginReqDto;
 import com.example.stockmanagementsystembackend.user.dto.request.UserRequest;
 import com.example.stockmanagementsystembackend.user.dto.response.UserResponse;
 import com.example.stockmanagementsystembackend.user.entity.Role;
@@ -42,7 +43,24 @@ public class UserService {
         return toResponse(userRepository.save(user));
     }
 
+    public User login(loginReqDto data) {
+        User user = userRepository.findByEmail(String.valueOf(data.getEmail()));
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with email: " + data.getEmail());
+        }else {
+            if (!passwordEncoder.matches(data.getPassword(), user.getPassword())) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password");
+            }
+            User user1 = new User();
+            user1.setFullName(user.getFullName());
+            user1.setEmail(user.getEmail());
+            user1.setPhoneNumber(user.getPhoneNumber());
+            user1.setRole(user.getRole());
+            user1.setDepartment(user.getDepartment());
+            return user1;
+        }
 
+    }
 
     @Transactional
     public List<UserResponse> getAll() {

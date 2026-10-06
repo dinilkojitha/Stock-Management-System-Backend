@@ -77,7 +77,7 @@ public class BranchService {
         public List<BranchInventoryResponse> getBranchInventory(Integer id) {
         Branch branch = find(id);
         return stockRepository.findByBranch(branch).stream()
-            .map(stock -> new BranchInventoryResponse(stock.getId(), branch.getId(), branch.getName(),
+            .map(stock -> new BranchInventoryResponse(stock.getStockId(), branch.getId(), branch.getName(),
                 stock.getQuantity(), stock.getManufactureDate(), stock.getExpiryDate()))
             .toList();
         }

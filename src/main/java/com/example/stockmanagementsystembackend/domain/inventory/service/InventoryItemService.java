@@ -1,11 +1,14 @@
 package com.example.stockmanagementsystembackend.domain.inventory.service;
 
+import com.example.stockmanagementsystembackend.domain.forecasting.repository.ForecastRepository;
+import com.example.stockmanagementsystembackend.domain.inventory.Dto.ItermDto;
 import com.example.stockmanagementsystembackend.domain.inventory.entity.Category;
 import com.example.stockmanagementsystembackend.domain.inventory.entity.InventoryItem;
 import com.example.stockmanagementsystembackend.domain.inventory.entity.UnitType;
 import com.example.stockmanagementsystembackend.domain.inventory.repository.CategoryRepository;
 import com.example.stockmanagementsystembackend.domain.inventory.repository.InventoryItemRepository;
 import com.example.stockmanagementsystembackend.domain.inventory.repository.UnitTypeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,10 +19,13 @@ import java.util.List;
 
 @Service
 // Polymorphism allows this implementation to be referenced by the shared CRUD type.
-public class InventoryItemService implements CrudService<InventoryItem, Integer> {
+public class InventoryItemService {
     private final InventoryItemRepository inventoryItemRepository;
     private final CategoryRepository categoryRepository;
     private final UnitTypeRepository unitTypeRepository;
+
+    @Autowired
+    ForecastRepository forecastRepository;
 
     public InventoryItemService(
             InventoryItemRepository inventoryItemRepository,
@@ -31,14 +37,12 @@ public class InventoryItemService implements CrudService<InventoryItem, Integer>
         this.unitTypeRepository = unitTypeRepository;
     }
 
-    @Override
-    @Transactional
+
     public InventoryItem create(InventoryItem inventoryItem) {
         return save(inventoryItem);
     }
 
-    @Override
-    @Transactional
+
     public InventoryItem save(InventoryItem inventoryItem) {
         validateInventoryItem(inventoryItem);
         inventoryItem.setId(null);
@@ -46,21 +50,27 @@ public class InventoryItemService implements CrudService<InventoryItem, Integer>
         return inventoryItemRepository.save(inventoryItem);
     }
 
-    @Override
-    @Transactional(readOnly = true)
+
     public List<InventoryItem> getAll() {
         return inventoryItemRepository.findAll();
     }
 
-    @Override
-    @Transactional(readOnly = true)
+    public List<ItermDto> getAllWraped() {
+        List<InventoryItem> inventoryItems = inventoryItemRepository.findAll();
+        return inventoryItems.stream().map(inventoryItem -> {
+            ItermDto dto = new ItermDto();
+            dto.setId(inventoryItem.getId());
+            dto.setItemName(inventoryItem.getItemName());
+            return dto;
+        }).collect(java.util.stream.Collectors.toList());
+    }
+
     public InventoryItem getById(Integer id) {
         return inventoryItemRepository.findById(id)
                 .orElseThrow(() -> inventoryItemNotFound(id));
     }
 
-    @Override
-    @Transactional
+
     public InventoryItem update(Integer id, InventoryItem inventoryItem) {
         validateInventoryItem(inventoryItem);
 
@@ -111,21 +121,21 @@ public class InventoryItemService implements CrudService<InventoryItem, Integer>
         return inventoryItemRepository.save(item);
     }
 
-    @Override
-    @Transactional
-    public void delete(Integer id) {
+
+    public String deleteInventoryItem(Integer id) {
         InventoryItem inventoryItem = inventoryItemRepository.findById(id)
                 .orElseThrow(() -> inventoryItemNotFound(id));
+        try{
+            forecastRepository.findAllByItem(inventoryItem).forEach(forecast -> {
+                forecastRepository.delete(forecast);
+            });
 
-        try {
             inventoryItemRepository.delete(inventoryItem);
-            inventoryItemRepository.flush();
-        } catch (DataIntegrityViolationException exception) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Inventory item cannot be deleted because it is in use"
-            );
+            return "Inventory item deleted successfully";
+        }catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error occurred while deleting inventory item");
         }
+
     }
 
     private void validateInventoryItem(InventoryItem inventoryItem) {

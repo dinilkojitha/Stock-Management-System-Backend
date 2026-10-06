@@ -2,6 +2,7 @@ package com.example.stockmanagementsystembackend.domain.procurement.controller;
 
 import com.example.stockmanagementsystembackend.domain.procurement.dto.DeliveryUpdateRequest;
 import com.example.stockmanagementsystembackend.domain.procurement.dto.OrderRequest;
+import com.example.stockmanagementsystembackend.domain.procurement.entity.Order;
 import com.example.stockmanagementsystembackend.domain.procurement.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,7 +19,7 @@ public class OrderController {
 	}
 
 	@PostMapping
-	public Object create(@Valid @RequestBody OrderRequest request) {
+	public Order create(@RequestBody OrderRequest request) {
 		return orderService.create(request);
 	}
 

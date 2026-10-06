@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface InventoryItemRepository extends JpaRepository<InventoryItem, Integer> {
     List<InventoryItem> findByItemNameContainingIgnoreCaseOrderByItemNameAsc(String keyword);
 
+    Optional<InventoryItem> findById(Integer id);
     List<InventoryItem> findByCategory_CategoryIdOrderByItemNameAsc(Integer categoryId);
 
     @Query("select i from InventoryItem i where i.totalQuantity <= i.reorderThreshold order by i.itemName")

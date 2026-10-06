@@ -1,5 +1,6 @@
 package com.example.stockmanagementsystembackend.domain.inventory.controller;
 
+import com.example.stockmanagementsystembackend.domain.inventory.Dto.ItermDto;
 import com.example.stockmanagementsystembackend.domain.inventory.entity.InventoryItem;
 import com.example.stockmanagementsystembackend.domain.inventory.service.InventoryItemService;
 import jakarta.validation.Valid;
@@ -32,13 +33,17 @@ public class InventoryItemController {
         this.inventoryItemService = inventoryItemService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<InventoryItem> createInventoryItem(
             @Valid @RequestBody InventoryItem inventoryItem
     ) {
         InventoryItem createdItem = inventoryItemService.save(inventoryItem);
         URI location = URI.create("/api/inventory-items/" + createdItem.getId());
         return ResponseEntity.created(location).body(createdItem);
+    }
+    @GetMapping("/all")
+    public List<ItermDto>  getAllInventoryItemsWraped() {
+        return inventoryItemService.getAllWraped();
     }
 
     @GetMapping
@@ -95,7 +100,7 @@ public class InventoryItemController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/update")
     public ResponseEntity<InventoryItem> updateInventoryItem(
             @PathVariable Integer id,
             @Valid @RequestBody InventoryItem inventoryItem
@@ -103,9 +108,9 @@ public class InventoryItemController {
         return ResponseEntity.ok(inventoryItemService.update(id, inventoryItem));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteInventoryItem(@PathVariable Integer id) {
-        inventoryItemService.delete(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/delete/{id}")
+    public String deleteInventoryItem(@PathVariable Integer id) {
+        return inventoryItemService.deleteInventoryItem(id);
+
     }
 }

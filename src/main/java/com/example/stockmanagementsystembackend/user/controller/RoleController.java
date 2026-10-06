@@ -28,7 +28,7 @@ public class RoleController {
         this.roleService = roleService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Role> createRole(@Valid @RequestBody Role role) {
         Role createdRole = roleService.createRole(role);
         URI location = URI.create("/api/roles/" + createdRole.getId());
@@ -45,12 +45,12 @@ public class RoleController {
         return ResponseEntity.ok(roleService.getRoleById(id));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/update")
     public ResponseEntity<Role> updateRole(@PathVariable Integer id, @Valid @RequestBody Role role) {
         return ResponseEntity.ok(roleService.updateRole(id, role));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/delete")
     public ResponseEntity<Void> deleteRole(@PathVariable Integer id) {
         roleService.deleteRole(id);
         return ResponseEntity.noContent().build();

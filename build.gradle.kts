@@ -47,6 +47,9 @@ dependencies {
     testImplementation("com.h2database:h2")
     // Gradle's JUnit Platform execution needs an explicit runtime launcher.
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    //Email Service
+    implementation("org.springframework.boot:spring-boot-starter-mail")
 }
 
 tasks.withType<JavaCompile>().configureEach {

@@ -1,9 +1,14 @@
 package com.example.stockmanagementsystembackend.domain.procurement.service;
 
+import com.example.stockmanagementsystembackend.Core.EmailService;
 import com.example.stockmanagementsystembackend.domain.procurement.dto.SupplierRequest;
 import com.example.stockmanagementsystembackend.domain.procurement.dto.SupplierResponse;
 import com.example.stockmanagementsystembackend.domain.procurement.entity.Supplier;
 import com.example.stockmanagementsystembackend.domain.procurement.repository.SupplierRepository;
+import jakarta.mail.MessagingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -13,11 +18,20 @@ import java.util.List;
 
 @Service
 public class SupplierService {
+
 	private final SupplierRepository supplierRepository;
 
-	public SupplierService(SupplierRepository supplierRepository) {
+
+//	public SupplierService(EmailService emailService, SupplierRepository supplierRepository) {
+//		this.emailService = emailService;
+//		this.supplierRepository = supplierRepository;
+//	}
+
+
+	public SupplierService(SupplierRepository supplierRepository, EmailService emailService) {
 		this.supplierRepository = supplierRepository;
-	}
+
+    }
 
 	public SupplierResponse create(SupplierRequest request) {
 		Supplier supplier = new Supplier();
@@ -62,5 +76,9 @@ public class SupplierService {
 		return new SupplierResponse(supplier.getId(), supplier.getCompanyName(), supplier.getContactPerson(),
 				supplier.getEmail(), supplier.getPhoneNumber(), supplier.getAddress());
 	}
+
+
+
+
 
 }

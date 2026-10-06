@@ -24,7 +24,7 @@ public class InternalRequestController {
         return ResponseEntity.ok(internalRequestService.getAllRequest());
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Internalrequest> createRequest(
             @RequestBody Internalrequest request) {
 
@@ -33,7 +33,7 @@ public class InternalRequestController {
         );
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/update")
     public ResponseEntity<Internalrequest> updateRequest(
             @PathVariable("id") Integer id,
             @RequestBody Internalrequest request) {
@@ -43,7 +43,7 @@ public class InternalRequestController {
         );
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/delete")
     public ResponseEntity<Void> deleteRequest(
             @PathVariable("id") Integer id) {
 

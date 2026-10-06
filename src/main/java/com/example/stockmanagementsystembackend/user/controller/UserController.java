@@ -1,19 +1,13 @@
 package com.example.stockmanagementsystembackend.user.controller;
 
+import com.example.stockmanagementsystembackend.user.dto.loginReqDto;
 import com.example.stockmanagementsystembackend.user.dto.request.UserRequest;
 import com.example.stockmanagementsystembackend.user.dto.response.UserResponse;
+import com.example.stockmanagementsystembackend.user.entity.User;
 import com.example.stockmanagementsystembackend.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
@@ -34,6 +28,10 @@ public class UserController {
         return ResponseEntity.created(URI.create("/api/users/" + created.getId())).body(created);
     }
 
+    @PostMapping("/login")
+    public User getUserByEmail(@RequestBody loginReqDto credentials) {
+        return userService.login(credentials);
+    }
 
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
@@ -45,13 +43,13 @@ public class UserController {
         return ResponseEntity.ok(userService.getById(id));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/update")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Integer id,
                                                    @Valid @RequestBody UserRequest request) {
         return ResponseEntity.ok(userService.update(id, request));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/delete")
     public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();

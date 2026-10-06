@@ -1,6 +1,5 @@
 package com.example.stockmanagementsystembackend.domain.inventory.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,7 +8,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "UnitType")
 public class UnitType {
@@ -24,45 +27,5 @@ public class UnitType {
     @Column(name = "name", length = 45)
     private String name;
 
-    public UnitType() {
-    }
 
-    public UnitType(String name) {
-        this.name = name;
-    }
-
-    public UnitType(Integer unitTypeId, String name) {
-        this.unitTypeId = unitTypeId;
-        this.name = name;
-    }
-
-    public Integer getUnitTypeId() {
-        return unitTypeId;
-    }
-
-    public void setUnitTypeId(Integer unitTypeId) {
-        this.unitTypeId = unitTypeId;
-    }
-
-    /**
-     * Compatibility accessor for existing inventory relationships that use a
-     * generic entity ID.
-     */
-    @JsonIgnore
-    public Integer getId() {
-        return unitTypeId;
-    }
-
-    @JsonIgnore
-    public void setId(Integer id) {
-        this.unitTypeId = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }
