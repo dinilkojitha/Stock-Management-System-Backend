@@ -47,8 +47,11 @@ public class StockTransferService {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer branches must be different");
 		User user = userRepository.findById(request.getRequestedById())
 				.orElseThrow(() -> notFound("User", request.getRequestedById()));
-		Status status = statusRepository.findById(request.getStatusId())
-				.orElseThrow(() -> notFound("Status", request.getStatusId()));
+		Status status = statusRepository.findByNameIgnoreCase("Pending").orElseGet(() -> {
+			Status pending = new Status();
+			pending.setName("Pending");
+			return statusRepository.save(pending);
+		});
 		Branchtransferrequest transfer = new Branchtransferrequest();
 		transfer.setSourceBranch(from);
 		transfer.setDestinationBranch(to);

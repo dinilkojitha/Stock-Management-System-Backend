@@ -26,7 +26,7 @@ public class StockTransferController {
 	}
 
 	@PostMapping
-	public Object create(@Valid @RequestBody StockTransferCreateRequest request) {
+	public Object create( @RequestBody StockTransferCreateRequest request) {
 		return transferService.createTransferRequest(request);
 	}
 

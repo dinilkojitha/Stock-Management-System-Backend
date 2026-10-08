@@ -19,6 +19,5 @@ public class StockTransferCreateRequest {
     @NotNull
     private Integer statusId;
     @NotEmpty
-    @Valid
     private List<TransferItemDto> items;
 }
