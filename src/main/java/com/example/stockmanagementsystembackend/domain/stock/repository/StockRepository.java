@@ -33,6 +33,9 @@ public interface StockRepository extends JpaRepository<Stock, Integer> {
 	List<Stock> findDistinctByItems_IdOrderByStockIdAsc(Integer itemId);
 
 	@EntityGraph(attributePaths = "items")
+	List<Stock> findDistinctByItems_IdAndBranch_Id(Integer itemId, Integer branchId);
+
+	@EntityGraph(attributePaths = "items")
 	List<Stock> findByExpiryDateBetweenOrderByExpiryDateAscStockIdAsc(LocalDate start, LocalDate end);
 
 	@EntityGraph(attributePaths = "items")

@@ -16,8 +16,11 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.Clock;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,17 +46,17 @@ public class StockService implements CrudService<Stock, Integer> {
     @Override
     @Transactional
     public Stock save(Stock request) {
-        //        validate(request);
+        validate(request);
         if (request.getStockId() == null) {
             throw badRequest("stockId is required; Stock.stock_id is not auto-increment");
         }
         if (stocks.existsById(request.getStockId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Stock ID already exists: " + request.getStockId());
         }
-        // A fresh entity always uses INSERT, including when the caller supplied an existing entity object.
         Stock stock = new Stock();
         stock.setStockId(request.getStockId());
-        //        apply(stock, request);
+        List<InventoryItem> associatedItems = apply(stock, request);
+        adjustInventoryQuantities(List.of(), 0, associatedItems, stock.getQuantity());
         return persist(stock);
     }
 
@@ -70,21 +73,24 @@ public class StockService implements CrudService<Stock, Integer> {
     @Override
     @Transactional
     public Stock update(Integer stockId, Stock request) {
-//        validate(request);
+                validate(request);
         if (request.getStockId() != null && !stockId.equals(request.getStockId())) {
             throw badRequest("Body stockId must match the URL stockId");
         }
         Stock stock = stocks.findByIdForUpdate(stockId).orElseThrow(() -> notFound("Stock", stockId));
-        //        apply(stock, request);
-        return persist(stock);
+                List<InventoryItem> previousItems = new ArrayList<>(stock.getItems());
+                double previousQuantity = stock.getQuantity();
+                List<InventoryItem> updatedItems = apply(stock, request);
+                adjustInventoryQuantities(previousItems, previousQuantity, updatedItems, stock.getQuantity());
+                return persist(stock);
     }
 
     @Override
     @Transactional
     public void delete(Integer stockId) {
         Stock stock = stocks.findByIdForUpdate(stockId).orElseThrow(() -> notFound("Stock", stockId));
+        adjustInventoryQuantities(new ArrayList<>(stock.getItems()), stock.getQuantity(), List.of(), 0);
         try {
-            // Hibernate removes only this batch's stock_items links, then the Stock row.
             stocks.delete(stock);
             stocks.flush();
         } catch (DataIntegrityViolationException exception) {
@@ -130,7 +136,9 @@ public class StockService implements CrudService<Stock, Integer> {
         if (stock.getQuantity() == null || !Double.isFinite(stock.getQuantity()) || stock.getQuantity() < 0) {
             throw badRequest("quantity must be finite and non-negative");
         }
-        if (stock.getBranch().getId() == null) throw badRequest("branchId is required");
+        if (stock.getBranch() == null || stock.getBranch().getId() == null) {
+            throw badRequest("branchId is required");
+        }
         for (LocalDate date : new LocalDate[]{stock.getManufactureDate(), stock.getExpiryDate()}) {
             if (date != null && (date.getYear() < 1000 || date.getYear() > 9999)) {
                 throw badRequest("Dates must be within the MySQL DATE range (1000 through 9999)");
@@ -140,13 +148,18 @@ public class StockService implements CrudService<Stock, Integer> {
                 && stock.getExpiryDate().isBefore(stock.getManufactureDate())) {
             throw badRequest("expiryDate must not be earlier than manufactureDate");
         }
-        if (stock.getItems() == null || stock.getItems().contains(null)) {
+        if (stock.getItems() == null || stock.getItems().contains(null)
+                || stock.getItems().stream().anyMatch(item -> item.getId() == null)) {
             throw badRequest("itemIds must be an array of non-null inventory item IDs");
+        }
+        if (stock.getItems().size() != 1) {
+            throw badRequest("A stock batch must be associated with exactly one inventory item");
         }
     }
 
-    private void apply(Stock stock, Stock request) {
-        var branch = branches.findById(request.getBranch().getId()).orElseThrow(() -> badRequest("branchId does not reference an existing Branch"));
+    private List<InventoryItem> apply(Stock stock, Stock request) {
+        var branch = branches.findById(request.getBranch().getId())
+                .orElseThrow(() -> badRequest("branchId does not reference an existing Branch"));
         Set<Integer> itemIds = request.getItems().stream().map(InventoryItem::getId).collect(Collectors.toSet());
         List<InventoryItem> associatedItems = items.findAllById(itemIds);
         if (associatedItems.size() != itemIds.size()) {
@@ -156,9 +169,48 @@ public class StockService implements CrudService<Stock, Integer> {
         stock.setManufactureDate(request.getManufactureDate());
         stock.setExpiryDate(request.getExpiryDate());
         stock.setBranch(branch);
-        // Replace the relationship as a whole, including an explicit empty list.
-        // There is no remove cascade or orphan removal on InventoryItem.
         stock.setItems(new LinkedHashSet<>(associatedItems));
+        return associatedItems;
+    }
+
+    private void adjustInventoryQuantities(
+            List<InventoryItem> previousItems,
+            double previousQuantity,
+            List<InventoryItem> updatedItems,
+            double updatedQuantity
+    ) {
+        // The batch quantity applies to each linked inventory item.
+        Map<Integer, InventoryItem> affectedItems = new LinkedHashMap<>();
+        Map<Integer, Double> quantityDeltas = new LinkedHashMap<>();
+        addQuantityDelta(previousItems, -previousQuantity, affectedItems, quantityDeltas);
+        addQuantityDelta(updatedItems, updatedQuantity, affectedItems, quantityDeltas);
+
+        for (Map.Entry<Integer, InventoryItem> entry : affectedItems.entrySet()) {
+            InventoryItem item = entry.getValue();
+            double currentQuantity = item.getTotalQuantity() == null ? 0 : item.getTotalQuantity();
+            double updatedTotal = currentQuantity + quantityDeltas.get(entry.getKey());
+            if (!Double.isFinite(updatedTotal) || updatedTotal < 0) {
+                throw new ResponseStatusException(
+                        HttpStatus.CONFLICT,
+                        "Batch quantity adjustment would make inventory quantity negative for item "
+                                + entry.getKey()
+                );
+            }
+            item.setTotalQuantity(updatedTotal);
+        }
+    }
+
+    private void addQuantityDelta(
+            List<InventoryItem> itemsToAdjust,
+            double quantityDelta,
+            Map<Integer, InventoryItem> affectedItems,
+            Map<Integer, Double> quantityDeltas
+    ) {
+        for (InventoryItem item : itemsToAdjust) {
+            Integer itemId = item.getId();
+            affectedItems.put(itemId, item);
+            quantityDeltas.merge(itemId, quantityDelta, Double::sum);
+        }
     }
 
     private Stock persist(Stock stock) {

@@ -3,6 +3,7 @@ package com.example.stockmanagementsystembackend.domain.stock.entity;
 import com.example.stockmanagementsystembackend.domain.organization.entity.Branch;
 import com.example.stockmanagementsystembackend.domain.inventory.entity.InventoryItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -38,6 +39,7 @@ public class Stock  {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "branch_id", nullable = false)
+    @JsonIgnore
     private Branch branch;
 
     // No cascade: batch CRUD must never create/delete InventoryItem records.
@@ -45,6 +47,7 @@ public class Stock  {
     @JoinTable(name = "stock_items",
             joinColumns = @JoinColumn(name = "stock_id"),
             inverseJoinColumns = @JoinColumn(name = "item_id"))
+    @JsonIgnore
     private Set<InventoryItem> items = new LinkedHashSet<>();
 
     @Transient
@@ -61,6 +64,45 @@ public class Stock  {
         this.manufactureDate = manufactureDate;
         this.expiryDate = expiryDate;
         this.branch = branch;
+    }
+
+    @JsonProperty("branchId")
+    public Integer getBranchId() {
+        return branch == null ? null : branch.getId();
+    }
+
+    @JsonProperty("branchId")
+    public void setBranchId(Integer branchId) {
+        if (branchId == null) {
+            branch = null;
+            return;
+        }
+        branch = new Branch();
+        branch.setId(branchId);
+    }
+
+    @JsonProperty("itemIds")
+    public Set<Integer> getItemIds() {
+        if (items == null) return null;
+        return items.stream()
+                .map(item -> item == null ? null : item.getId())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    @JsonProperty("itemIds")
+    public void setItemIds(Set<Integer> itemIds) {
+        if (itemIds == null) {
+            items = null;
+            return;
+        }
+        items = itemIds.stream()
+                .map(itemId -> {
+                    if (itemId == null) return null;
+                    InventoryItem item = new InventoryItem();
+                    item.setId(itemId);
+                    return item;
+                })
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @JsonIgnore
