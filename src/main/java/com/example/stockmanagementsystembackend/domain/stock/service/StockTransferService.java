@@ -16,7 +16,9 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class StockTransferService {
@@ -26,17 +28,20 @@ public class StockTransferService {
 	private final InventoryItemRepository inventoryRepository;
 	private final UserRepository userRepository;
 	private final StatusRepository statusRepository;
+	private final StockMovementService stockMovementService;
 
 	public StockTransferService(StockTransferRepository transferRepository,
 			StockTransferRequestItemRepository itemRepository,
 			BranchRepository branchRepository, InventoryItemRepository inventoryRepository,
-			UserRepository userRepository, StatusRepository statusRepository) {
+			UserRepository userRepository, StatusRepository statusRepository,
+			StockMovementService stockMovementService) {
 		this.transferRepository = transferRepository;
 		this.itemRepository = itemRepository;
 		this.branchRepository = branchRepository;
 		this.inventoryRepository = inventoryRepository;
 		this.userRepository = userRepository;
 		this.statusRepository = statusRepository;
+		this.stockMovementService = stockMovementService;
 	}
 
 	@Transactional
@@ -58,8 +63,24 @@ public class StockTransferService {
 		transfer.setRequestedByUser(user);
 		transfer.setStatus(status);
 		transfer.setRequestedAt(Instant.now());
-		transfer = transferRepository.save(transfer);
+		if (request.getItems() == null || request.getItems().isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A transfer must contain at least one item");
+		}
+		Set<Integer> itemIds = new HashSet<>();
 		for (TransferItemDto dto : request.getItems()) {
+			if (dto.getInventoryItemId() == null || dto.getQuantity() == null
+					|| !Double.isFinite(dto.getQuantity()) || dto.getQuantity() <= 0) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+						"Transfer items require an item and a positive finite quantity");
+			}
+			if (!itemIds.add(dto.getInventoryItemId())) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+						"An item can only appear once in a transfer request");
+			}
+		}
+		transfer = transferRepository.save(transfer);
+		for (TransferItemDto dto : request.getItems().stream()
+				.sorted(java.util.Comparator.comparing(TransferItemDto::getInventoryItemId)).toList()) {
 			InventoryItem item = inventoryRepository.findById(dto.getInventoryItemId())
 					.orElseThrow(() -> notFound("Inventory item", dto.getInventoryItemId()));
 			BranchTransferItemId itemId = new BranchTransferItemId();
@@ -92,20 +113,40 @@ public class StockTransferService {
 	}
 
 	@Transactional
-	public StockTransferResponse approveTransfer(Integer id) {
-		return process(id, "Approved");
+	public StockTransferResponse approveTransfer(Integer id, Integer approvedByUserId) {
+		return process(id, true, approvedByUserId);
 	}
 
 	@Transactional
 	public StockTransferResponse rejectTransfer(Integer id) {
-		return process(id, "Rejected");
+		return process(id, false, null);
 	}
 
-	private StockTransferResponse process(Integer id, String target) {
-		Branchtransferrequest transfer = find(id);
+	private StockTransferResponse process(Integer id, boolean approve, Integer approvedByUserId) {
+		Branchtransferrequest transfer = transferRepository.findByIdForUpdate(id)
+				.orElseThrow(() -> notFound("Transfer", id));
 		String current = transfer.getStatus().getName();
-		if ("Approved".equalsIgnoreCase(current) || "Rejected".equalsIgnoreCase(current))
+		if (!"Pending".equalsIgnoreCase(current))
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "Transfer has already been processed");
+		if (approve) {
+			if (approvedByUserId == null || approvedByUserId <= 0) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "An approving user is required");
+			}
+			if (!userRepository.existsById(approvedByUserId)) {
+				throw notFound("User", approvedByUserId);
+			}
+			itemRepository.findByIdTransferId(id).stream()
+					.sorted(java.util.Comparator.comparing(item -> item.getItem().getId()))
+					.forEach(item -> stockMovementService.transfer(
+							item.getItem().getId(),
+							transfer.getSourceBranch().getId(),
+							transfer.getDestinationBranch().getId(),
+							item.getQuantity(),
+							approvedByUserId,
+							id
+					));
+		}
+		String target = approve ? "Approved" : "Rejected";
 		Status status = statusRepository.findByNameIgnoreCase(target).orElseGet(() -> {
 			Status created = new Status();
 			created.setName(target);

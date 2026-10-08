@@ -2,6 +2,8 @@ package com.example.stockmanagementsystembackend.domain.procurement.controller;
 
 import com.example.stockmanagementsystembackend.domain.procurement.dto.DeliveryUpdateRequest;
 import com.example.stockmanagementsystembackend.domain.procurement.dto.OrderRequest;
+import com.example.stockmanagementsystembackend.domain.procurement.dto.OrderReceiptRequest;
+import com.example.stockmanagementsystembackend.domain.procurement.dto.OrderResponse;
 import com.example.stockmanagementsystembackend.domain.procurement.entity.Order;
 import com.example.stockmanagementsystembackend.domain.procurement.service.OrderService;
 import jakarta.validation.Valid;
@@ -19,7 +21,7 @@ public class OrderController {
 	}
 
 	@PostMapping
-	public Order create(@RequestBody OrderRequest request) {
+	public OrderResponse create(@RequestBody OrderRequest request) {
 		return orderService.create(request);
 	}
 
@@ -36,6 +38,11 @@ public class OrderController {
 	@PatchMapping("/{id}/delivery")
 	public Object updateDelivery(@PathVariable Integer id, @Valid @RequestBody DeliveryUpdateRequest request) {
 		return orderService.updateDelivery(id, request);
+	}
+
+	@PostMapping("/{id}/receipts")
+	public OrderResponse receive(@PathVariable Integer id, @RequestBody OrderReceiptRequest request) {
+		return orderService.receive(id, request);
 	}
 
 }

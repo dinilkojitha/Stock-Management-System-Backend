@@ -29,4 +29,7 @@ public class PurchaseOrderItem {
     @Column(name = "unit_cost")
     private Double unitCost;
 
+    @Column(name = "received_quantity", nullable = false, columnDefinition = "double default 0")
+    private Double receivedQuantity = 0.0;
+
 }

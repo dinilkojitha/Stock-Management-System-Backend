@@ -46,8 +46,8 @@ public class StockTransferController {
 	}
 
 	@PutMapping("/{id}/approve")
-	public Object approve(@PathVariable Integer id) {
-		return transferService.approveTransfer(id);
+	public Object approve(@PathVariable Integer id, @RequestParam Integer approvedByUserId) {
+		return transferService.approveTransfer(id, approvedByUserId);
 	}
 
 	@PutMapping("/{id}/reject")
