@@ -9,5 +9,6 @@ import java.util.List;
 @Setter
 public class StockAllocationRequestDTO {
 
+    private Integer allocatedByUserId;
     private List<StockAllocationDTO> items;
 }
