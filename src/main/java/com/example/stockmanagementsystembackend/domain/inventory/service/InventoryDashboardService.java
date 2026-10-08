@@ -33,7 +33,7 @@ public class InventoryDashboardService {
      */
     @Transactional(readOnly = true)
     public InventoryDashboardSummary getSummary() {
-        List<InventoryItem> items = inventoryItems.findAll();
+        List<InventoryItem> items = inventoryItems.findByArchivedFalseOrderByItemNameAsc();
         LocalDate today = LocalDate.now(clock);
 
         double totalQuantity = items.stream()

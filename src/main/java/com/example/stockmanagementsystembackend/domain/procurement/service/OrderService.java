@@ -3,6 +3,8 @@ package com.example.stockmanagementsystembackend.domain.procurement.service;
 import com.example.stockmanagementsystembackend.Core.EmailService;
 import com.example.stockmanagementsystembackend.domain.inventory.entity.InventoryItem;
 import com.example.stockmanagementsystembackend.domain.inventory.repository.InventoryItemRepository;
+import com.example.stockmanagementsystembackend.domain.organization.entity.Branch;
+import com.example.stockmanagementsystembackend.domain.organization.repository.BranchRepository;
 import com.example.stockmanagementsystembackend.domain.procurement.dto.*;
 import com.example.stockmanagementsystembackend.domain.procurement.entity.Order;
 import com.example.stockmanagementsystembackend.domain.procurement.entity.PurchaseOrderItem;
@@ -36,6 +38,7 @@ public class OrderService {
 	private final OrderRepository orderRepository;
 	private final PurchaseOrderItemRepository itemRepository;
 	private final SupplierRepository supplierRepository;
+	private final BranchRepository branchRepository;
 	private final InventoryItemRepository inventoryItemRepository;
 	private final UserRepository userRepository;
 	private final StockMovementService stockMovementService;
@@ -45,12 +48,14 @@ public class OrderService {
 
 
 	public OrderService(OrderRepository orderRepository, PurchaseOrderItemRepository itemRepository,
-                        SupplierRepository supplierRepository, InventoryItemRepository inventoryItemRepository,
+                        SupplierRepository supplierRepository, BranchRepository branchRepository,
+                        InventoryItemRepository inventoryItemRepository,
                         UserRepository userRepository, EmailService emailService,
                         StockMovementService stockMovementService) {
 		this.orderRepository = orderRepository;
 		this.itemRepository = itemRepository;
 		this.supplierRepository = supplierRepository;
+		this.branchRepository = branchRepository;
 		this.inventoryItemRepository = inventoryItemRepository;
 		this.userRepository = userRepository;
         this.emailService = emailService;
@@ -93,14 +98,20 @@ public class OrderService {
 
 	@Transactional
 	public OrderResponse create(OrderRequest request) {
+		if (request.getBranchId() == null || request.getBranchId() <= 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A destination branch is required");
+		}
 		Order order = new Order();
 		Supplier supplier = supplierRepository.findById(request.getSupplierId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Supplier not found: " + request.getSupplierId()));
+		Branch branch = branchRepository.findById(request.getBranchId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Branch not found: " + request.getBranchId()));
 
 		User user = userRepository.findById(request.getCreatedByUserId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + request.getCreatedByUserId()));
 
 		order.setSupplier(supplier);
+		order.setBranch(branch);
 		order.setCreatedByUser(user);
 		order.setOrderDate(Instant.now());
 		order.setExpectedDeliveryDate(request.getExpectedDeliveryDate());
@@ -112,12 +123,12 @@ public class OrderService {
 		double totalCost = 0.0;
 		Set<Integer> itemIds = new HashSet<>();
 		Map<Integer, InventoryItem> itemsById = new HashMap<>();
+		Map<Integer, Double> unitCostsByItemId = new HashMap<>();
 
 		for (OrderItemRequest i : request.getItems()) {
 			if (i.getItemId() == null || i.getQuantity() == null || !Double.isFinite(i.getQuantity())
-					|| i.getQuantity() <= 0 || i.getUnitCost() == null || !Double.isFinite(i.getUnitCost())
-					|| i.getUnitCost() <= 0) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order items require positive quantities and unit costs");
+					|| i.getQuantity() <= 0) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order items require a valid item and positive quantity");
 			}
 			if (!itemIds.add(i.getItemId())) {
 				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "An item can only appear once in an order");
@@ -125,9 +136,18 @@ public class OrderService {
 			int tofone = i.getItemId();
 			InventoryItem item = inventoryItemRepository.findById(tofone)
 					.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Inventory item not found: " + tofone));
+			Double unitCost = item.getUnitPrice();
+			if (unitCost == null || !Double.isFinite(unitCost) || unitCost <= 0) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+						"Set a positive unit price for inventory item " + item.getItemName() + " before ordering it");
+			}
 			itemsById.put(item.getId(), item);
+			unitCostsByItemId.put(item.getId(), unitCost);
 
-			double price = i.getUnitCost() * i.getQuantity();
+			double price = unitCost * i.getQuantity();
+			if (!Double.isFinite(price) || !Double.isFinite(totalCost + price)) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Purchase order total is too large");
+			}
 			totalCost += price;
 		}
 
@@ -145,7 +165,7 @@ public class OrderService {
 			orderItem.setPurchaseOrder(savedOrder);
 			orderItem.setItem(item);
 			orderItem.setQuantity(i.getQuantity());
-			orderItem.setUnitCost(i.getUnitCost());
+			orderItem.setUnitCost(unitCostsByItemId.get(item.getId()));
 			itemRepository.save(orderItem);
 		}
 
@@ -195,27 +215,31 @@ public class OrderService {
 		if ("DELIVERED".equalsIgnoreCase(order.getStatus())) {
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "Purchase order has already been fully received");
 		}
+		Branch receiptBranch = branchRepository.findById(request.branchId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+						"Branch not found: " + request.branchId()));
+		if (order.getBranch() != null && !order.getBranch().getId().equals(request.branchId())) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Stock for this purchase order must be received at " + order.getBranch().getName());
+		}
+		if (order.getBranch() == null) {
+			order.setBranch(receiptBranch);
+		}
 
 		List<PurchaseOrderItem> orderItems = itemRepository.findByPurchaseOrderIdForUpdate(id);
 		Map<Integer, PurchaseOrderItem> itemsById = new HashMap<>();
 		for (PurchaseOrderItem orderItem : orderItems) itemsById.put(orderItem.getItem().getId(), orderItem);
 
 		Set<Integer> receivedItemIds = new HashSet<>();
-		Set<Integer> stockIds = new HashSet<>();
 		for (OrderReceiptItemRequest receipt : request.items()) {
 			if (receipt == null || receipt.itemId() == null || receipt.quantity() == null
-					|| !Double.isFinite(receipt.quantity()) || receipt.quantity() <= 0
-					|| receipt.stockId() == null || receipt.stockId() <= 0) {
+					|| !Double.isFinite(receipt.quantity()) || receipt.quantity() <= 0) {
 				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-						"Each receipt line requires an item, batch ID, and positive finite quantity");
+						"Each receipt line requires an item and positive finite quantity");
 			}
 			if (!receivedItemIds.add(receipt.itemId())) {
 				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 						"An item can only be received once per submission");
-			}
-			if (!stockIds.add(receipt.stockId())) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-						"Each receipt line requires a unique batch ID");
 			}
 			PurchaseOrderItem orderItem = itemsById.get(receipt.itemId());
 			if (orderItem == null) {
@@ -232,9 +256,9 @@ public class OrderService {
 		for (OrderReceiptItemRequest receipt : request.items()) {
 			PurchaseOrderItem orderItem = itemsById.get(receipt.itemId());
 			stockMovementService.receive(new StockReceiptRequest(
-					receipt.stockId(),
+					null,
 					receipt.itemId(),
-					request.branchId(),
+					order.getBranch().getId(),
 					receipt.quantity(),
 					request.receivedByUserId(),
 					receipt.manufactureDate(),
@@ -286,6 +310,8 @@ public class OrderService {
 						item.getQuantity(), item.getReceivedQuantity() == null ? 0 : item.getReceivedQuantity(),
 						item.getUnitCost())).toList();
 		return new OrderResponse(order.getId(), order.getSupplier().getId(), order.getSupplier().getCompanyName(),
+				order.getBranch() == null ? null : order.getBranch().getId(),
+				order.getBranch() == null ? null : order.getBranch().getName(),
 				order.getCreatedByUser().getId(), order.getOrderDate(), order.getExpectedDeliveryDate(),
 				order.getActualDeliveryDate(), order.getTotalCost(), order.getStatus(), items);
 	}

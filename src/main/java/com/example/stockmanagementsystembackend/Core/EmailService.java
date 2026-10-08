@@ -54,11 +54,11 @@ public class EmailService {
             <body>
                 <div class="card">
                     <div class="header">
-                        <h2>Dan Sapadha Pvt Ltd</h2>
+                        <h2> Nexus Inventory </h2>
                     </div>
                     <div class="content">
                         <p>Have a nice day, %s!</p>
-                        <p><strong>Dan Sapadha Pvt Ltd</strong> has placed a new order for items from you.</p>
+                        <p><strong>Nexus Inventory</strong> has placed a new order for items from you.</p>
                         <p>Please log in to your account using the button below to review and confirm the order details.</p>
                         <div class="btn-container">
                             <a href="%s" class="btn">Log In & Confirm Order</a>

@@ -1,7 +1,6 @@
 package com.example.stockmanagementsystembackend.domain.procurement.dto;
 
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,10 +11,5 @@ public class OrderItemRequest {
     private Integer itemId;
 
     @NotNull
-    @Positive
     private Double quantity;
-
-    @NotNull
-    @Positive
-    private Double unitCost;
 }

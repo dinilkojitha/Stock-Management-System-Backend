@@ -51,6 +51,11 @@ public class InventoryItemController {
         return ResponseEntity.ok(inventoryItemService.getAll());
     }
 
+    @GetMapping("/archived")
+    public ResponseEntity<List<InventoryItem>> getArchivedInventoryItems() {
+        return ResponseEntity.ok(inventoryItemService.getArchived());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<InventoryItem> getInventoryItemById(@PathVariable Integer id) {
         return ResponseEntity.ok(inventoryItemService.getById(id));
@@ -110,7 +115,11 @@ public class InventoryItemController {
 
     @DeleteMapping("/delete/{id}")
     public String deleteInventoryItem(@PathVariable Integer id) {
-        return inventoryItemService.deleteInventoryItem(id);
+        return inventoryItemService.archiveInventoryItem(id);
+    }
 
+    @PutMapping("/{id}/restore")
+    public String restoreInventoryItem(@PathVariable Integer id) {
+        return inventoryItemService.restoreInventoryItem(id);
     }
 }

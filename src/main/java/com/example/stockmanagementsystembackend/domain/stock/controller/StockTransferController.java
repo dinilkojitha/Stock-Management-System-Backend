@@ -1,6 +1,7 @@
 package com.example.stockmanagementsystembackend.domain.stock.controller;
 
 import com.example.stockmanagementsystembackend.domain.stock.dto.request.StockTransferCreateRequest;
+import com.example.stockmanagementsystembackend.domain.stock.dto.response.StockTransferResponse;
 import com.example.stockmanagementsystembackend.domain.stock.service.StockTransferService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -45,9 +46,11 @@ public class StockTransferController {
 		return transferService.getTransfersByBranch(branchId);
 	}
 
-	@PutMapping("/{id}/approve")
-	public Object approve(@PathVariable Integer id, @RequestParam Integer approvedByUserId) {
-		return transferService.approveTransfer(id, approvedByUserId);
+	@PutMapping("/{id}/approve/{approvedByUserId}")
+	public ResponseEntity<StockTransferResponse> approve(
+			@PathVariable Integer id,
+			@PathVariable Integer approvedByUserId) {
+		return ResponseEntity.ok(transferService.approveTransfer(id, approvedByUserId));
 	}
 
 	@PutMapping("/{id}/reject")

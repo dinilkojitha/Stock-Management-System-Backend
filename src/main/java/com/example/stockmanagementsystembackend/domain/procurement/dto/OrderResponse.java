@@ -8,6 +8,8 @@ public record OrderResponse(
         Integer id,
         Integer supplierId,
         String supplierName,
+        Integer branchId,
+        String branchName,
         Integer createdByUserId,
         Instant orderDate,
         LocalDate expectedDeliveryDate,

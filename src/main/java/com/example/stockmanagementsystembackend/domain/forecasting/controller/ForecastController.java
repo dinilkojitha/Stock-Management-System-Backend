@@ -124,12 +124,14 @@ public class ForecastController {
             @RequestParam(
                     defaultValue = "Monthly"
             )
-            String forecastPeriod) {
+            String forecastPeriod,
+            @RequestParam(required = false) Integer branchId) {
 
         return forecastService
                 .getPlanningRecommendation(
                         inventoryItemId,
-                        forecastPeriod
+                        forecastPeriod,
+                        branchId
                 );
     }
 

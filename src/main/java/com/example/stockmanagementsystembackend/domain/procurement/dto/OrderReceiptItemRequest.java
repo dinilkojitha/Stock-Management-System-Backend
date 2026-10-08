@@ -5,7 +5,6 @@ import java.time.LocalDate;
 public record OrderReceiptItemRequest(
         Integer itemId,
         Double quantity,
-        Integer stockId,
         LocalDate manufactureDate,
         LocalDate expiryDate
 ) {

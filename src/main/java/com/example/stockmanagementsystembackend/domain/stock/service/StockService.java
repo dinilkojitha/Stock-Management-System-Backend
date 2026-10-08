@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -148,7 +149,7 @@ public class StockService implements CrudService<Stock, Integer> {
                 && stock.getExpiryDate().isBefore(stock.getManufactureDate())) {
             throw badRequest("expiryDate must not be earlier than manufactureDate");
         }
-        if (stock.getItems() == null || stock.getItems().contains(null)
+        if (stock.getItems() == null || stock.getItems().stream().anyMatch(Objects::isNull)
                 || stock.getItems().stream().anyMatch(item -> item.getId() == null)) {
             throw badRequest("itemIds must be an array of non-null inventory item IDs");
         }

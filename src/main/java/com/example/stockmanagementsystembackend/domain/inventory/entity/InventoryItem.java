@@ -52,4 +52,7 @@ public class InventoryItem {
     @Column(name = "reorderThreshold")
     private Double reorderThreshold;
 
+    @Column(name = "archived", nullable = false, columnDefinition = "boolean default false")
+    private boolean archived;
+
 }

@@ -63,9 +63,10 @@ public class StockMovementService {
         Branch branch = branches.findById(request.branchId())
                 .orElseThrow(() -> notFound("Branch", request.branchId()));
         User user = findUser(request.userId());
+        Integer stockId = request.stockId() == null ? generateStockId() : request.stockId();
 
         Stock batch = new Stock();
-        batch.setStockId(request.stockId());
+        batch.setStockId(stockId);
         batch.setQuantity(request.quantity());
         batch.setManufactureDate(request.manufactureDate());
         batch.setExpiryDate(request.expiryDate());
@@ -73,7 +74,7 @@ public class StockMovementService {
         batch.setItems(java.util.Set.of(item));
         Stock savedBatch = stockService.save(batch);
 
-        recordTransaction("STOCK_IN", user, item, request.quantity(), request.remarks());
+        recordTransaction("STOCK_IN", user, item, branch, request.quantity(), request.remarks());
         return new StockMovementResponse(
                 item.getId(),
                 item.getItemName(),
@@ -134,7 +135,7 @@ public class StockMovementService {
             );
         }
         item.setTotalQuantity(totalQuantity - request.quantity());
-        recordTransaction("STOCK_OUT", user, item, -request.quantity(), request.remarks());
+        recordTransaction("STOCK_OUT", user, item, branch, -request.quantity(), request.remarks());
 
         return new StockMovementResponse(
                 item.getId(),
@@ -209,9 +210,9 @@ public class StockMovementService {
                 destinationBatch.setItems(java.util.Set.of(item));
                 stocks.save(destinationBatch);
             }
-            recordTransaction("TRANSFER_OUT", user, item, -moved,
+            recordTransaction("TRANSFER_OUT", user, item, source, -moved,
                     "Branch transfer #" + transferId + " to " + destination.getName());
-            recordTransaction("TRANSFER_IN", user, item, moved,
+            recordTransaction("TRANSFER_IN", user, item, destination, moved,
                     "Branch transfer #" + transferId + " from " + source.getName());
         }
     }
@@ -239,11 +240,13 @@ public class StockMovementService {
         }
     }
 
-    private void recordTransaction(String type, User user, InventoryItem item, double quantity, String remarks) {
+    private void recordTransaction(String type, User user, InventoryItem item, Branch branch,
+                                   double quantity, String remarks) {
         Transaction transaction = new Transaction();
         transaction.setTransactionType(type);
         transaction.setUserUserid(user);
         transaction.setItem(item);
+        transaction.setBranch(branch);
         transaction.setQuantityDelta(quantity);
         transaction.setRemarks(remarks);
         transaction.setTransactedAt(java.time.Instant.now(clock));

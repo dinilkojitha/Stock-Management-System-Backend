@@ -6,6 +6,8 @@ import com.example.stockmanagementsystembackend.domain.forecasting.entity.Foreca
 import com.example.stockmanagementsystembackend.domain.forecasting.repository.ForecastRepository;
 import com.example.stockmanagementsystembackend.domain.inventory.entity.InventoryItem;
 import com.example.stockmanagementsystembackend.domain.inventory.repository.InventoryItemRepository;
+import com.example.stockmanagementsystembackend.domain.stock.entity.Stock;
+import com.example.stockmanagementsystembackend.domain.stock.repository.StockRepository;
 import com.example.stockmanagementsystembackend.user.entity.User;
 import com.example.stockmanagementsystembackend.user.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
@@ -22,17 +24,20 @@ public class ForecastService {
     private final InventoryItemRepository inventoryItemRepository;
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
+    private final StockRepository stockRepository;
 
     public ForecastService(
             ForecastRepository forecastRepository,
             InventoryItemRepository inventoryItemRepository,
             TransactionRepository transactionRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            StockRepository stockRepository) {
 
         this.forecastRepository = forecastRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
+        this.stockRepository = stockRepository;
     }
 
     // CREATE FORECAST
@@ -305,6 +310,10 @@ public class ForecastService {
       */
 
     public double calculateForecast(Integer inventoryItemId, String forecastPeriod) {
+        return calculateForecast(inventoryItemId, forecastPeriod, null);
+    }
+
+    public double calculateForecast(Integer inventoryItemId, String forecastPeriod, Integer branchId) {
 
         InventoryItem inventoryItem =
                 inventoryItemRepository
@@ -322,7 +331,9 @@ public class ForecastService {
 
         Instant startDate = endDate.minus(historicalDays, ChronoUnit.DAYS);
 
-        List<Transaction> transactions = transactionRepository.findAll();
+        List<Transaction> transactions = branchId == null
+                ? transactionRepository.findByItemId(inventoryItemId)
+                : transactionRepository.findByItemIdAndBranch_Id(inventoryItemId, branchId);
 
         double totalConsumption = 0.0;
 
@@ -330,13 +341,6 @@ public class ForecastService {
 
             // Ignore transactions without an item.
             if (transaction.getItem() == null) {
-                continue;
-            }
-
-            // Only use transactions for the selected item.
-            if (!transaction.getItem()
-                    .getId()
-                    .equals(inventoryItemId)) {
                 continue;
             }
 
@@ -364,7 +368,7 @@ public class ForecastService {
              * Wastage is not normal consumption.
              * Therefore do not include it in demand.
              */
-            if (isWastageTransaction(transaction)) {
+            if (isWastageTransaction(transaction) || isTransferTransaction(transaction)) {
                 continue;
             }
 
@@ -494,6 +498,13 @@ public class ForecastService {
     public double calculateRecommendedPurchase(
             Integer inventoryItemId,
             String forecastPeriod) {
+        return calculateRecommendedPurchase(inventoryItemId, forecastPeriod, null);
+    }
+
+    public double calculateRecommendedPurchase(
+            Integer inventoryItemId,
+            String forecastPeriod,
+            Integer branchId) {
 
         InventoryItem inventoryItem =
                 inventoryItemRepository
@@ -508,13 +519,13 @@ public class ForecastService {
         double predictedDemand =
                 calculateForecast(
                         inventoryItemId,
-                        forecastPeriod
+                        forecastPeriod,
+                        branchId
                 );
 
-        double currentStock =
-                inventoryItem.getTotalQuantity() != null
-                        ? inventoryItem.getTotalQuantity()
-                        : 0.0;
+        double currentStock = branchId == null
+                ? inventoryItem.getTotalQuantity() == null ? 0.0 : inventoryItem.getTotalQuantity()
+                : getBranchStock(inventoryItemId, branchId);
 
         double reorderThreshold =
                 inventoryItem.getReorderThreshold() != null
@@ -544,6 +555,13 @@ public class ForecastService {
     getPlanningRecommendation(
             Integer inventoryItemId,
             String forecastPeriod) {
+        return getPlanningRecommendation(inventoryItemId, forecastPeriod, null);
+    }
+
+    public ResponseEntity<String> getPlanningRecommendation(
+            Integer inventoryItemId,
+            String forecastPeriod,
+            Integer branchId) {
 
         InventoryItem inventoryItem =
                 inventoryItemRepository
@@ -561,19 +579,20 @@ public class ForecastService {
         double predictedDemand =
                 calculateForecast(
                         inventoryItemId,
-                        forecastPeriod
+                        forecastPeriod,
+                        branchId
                 );
 
         double recommendedPurchase =
                 calculateRecommendedPurchase(
                         inventoryItemId,
-                        forecastPeriod
+                        forecastPeriod,
+                        branchId
                 );
 
-        double currentStock =
-                inventoryItem.getTotalQuantity() != null
-                        ? inventoryItem.getTotalQuantity()
-                        : 0.0;
+        double currentStock = branchId == null
+                ? inventoryItem.getTotalQuantity() == null ? 0.0 : inventoryItem.getTotalQuantity()
+                : getBranchStock(inventoryItemId, branchId);
 
         double reorderThreshold =
                 inventoryItem.getReorderThreshold() != null
@@ -583,6 +602,9 @@ public class ForecastService {
         String result =
                 "Item: " +
                         inventoryItem.getItemName() +
+
+                        ", Branch ID: " +
+                        (branchId == null ? "All branches" : branchId) +
 
                         ", Current Stock: " +
                         round(currentStock) +
@@ -600,6 +622,19 @@ public class ForecastService {
                         recommendedPurchase;
 
         return ResponseEntity.ok(result);
+    }
+
+    private double getBranchStock(Integer itemId, Integer branchId) {
+        return stockRepository.findDistinctByItems_IdAndBranch_Id(itemId, branchId).stream()
+                .map(Stock::getQuantity)
+                .filter(quantity -> quantity != null && Double.isFinite(quantity))
+                .mapToDouble(Double::doubleValue)
+                .sum();
+    }
+
+    private boolean isTransferTransaction(Transaction transaction) {
+        String type = transaction.getTransactionType();
+        return type != null && type.toUpperCase().contains("TRANSFER");
     }
 
     // RECORD WASTAGE

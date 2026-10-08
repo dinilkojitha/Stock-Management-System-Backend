@@ -6,6 +6,7 @@ import com.example.stockmanagementsystembackend.user.dto.response.UserResponse;
 import com.example.stockmanagementsystembackend.user.entity.User;
 import com.example.stockmanagementsystembackend.user.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,10 +17,16 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/api/users")
 public class UserController {
-    private final UserService userService;
+    @Autowired
+    UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+//    public UserController(UserService userService) {
+//        this.userService = userService;
+//    }
+
+    @PostMapping("/admin")
+    public String admins(){
+        return userService.createAdmin();
     }
 
     @PostMapping
@@ -54,6 +61,7 @@ public class UserController {
         userService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
 
 }
 

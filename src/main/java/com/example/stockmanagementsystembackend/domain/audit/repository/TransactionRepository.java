@@ -13,7 +13,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 
     List<Transaction> findByItemId(Integer itemId);
 
+    List<Transaction> findByItemIdAndBranch_Id(Integer itemId, Integer branchId);
+
     List<Transaction> findByTransactionTypeIgnoreCase(String transactionType);
 }
-
 

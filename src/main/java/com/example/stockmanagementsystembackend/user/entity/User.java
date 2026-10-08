@@ -38,9 +38,8 @@ public class User {
     @Column(name = "phone_number", length = 45)
     private String phoneNumber;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "department_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "department_id", nullable = true)
     private Department department;
 
 }

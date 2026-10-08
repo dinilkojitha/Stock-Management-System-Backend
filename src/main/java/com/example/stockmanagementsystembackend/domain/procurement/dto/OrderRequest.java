@@ -14,6 +14,7 @@ import java.util.List;
 @Setter
 public class OrderRequest {
     private Integer supplierId;
+    private Integer branchId;
     private Integer createdByUserId;
     private LocalDate expectedDeliveryDate;
     private List<OrderItemRequest> items;

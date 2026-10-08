@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 public record StockReceiptRequest(
-        @NotNull @Positive Integer stockId,
+        @Positive Integer stockId,
         @NotNull @Positive Integer itemId,
         @NotNull @Positive Integer branchId,
         @NotNull @Positive Double quantity,

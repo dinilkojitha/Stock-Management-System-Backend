@@ -1,6 +1,7 @@
 package com.example.stockmanagementsystembackend.domain.audit.entity;
 
 import com.example.stockmanagementsystembackend.domain.inventory.entity.InventoryItem;
+import com.example.stockmanagementsystembackend.domain.organization.entity.Branch;
 import com.example.stockmanagementsystembackend.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -33,6 +34,10 @@ public class Transaction {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "item_id", nullable = false)
     private InventoryItem item;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
 
     @Column(name = "transacted_at")
     private Instant transactedAt;

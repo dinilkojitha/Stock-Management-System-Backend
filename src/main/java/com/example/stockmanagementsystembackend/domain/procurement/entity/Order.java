@@ -1,6 +1,7 @@
 package com.example.stockmanagementsystembackend.domain.procurement.entity;
 
 import com.example.stockmanagementsystembackend.user.entity.User;
+import com.example.stockmanagementsystembackend.domain.organization.entity.Branch;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -28,6 +29,10 @@ public class Order {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "supplier_id", nullable = false)
     private Supplier supplier;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
 
     @Column(name = "order_date")
     private Instant orderDate;

@@ -93,8 +93,20 @@ public class UserService {
         user.setFullName(trim(request.getFullName()));
         user.setEmail(trim(request.getEmail()));
         user.setPhoneNumber(trim(request.getPhoneNumber()));
-        user.setRole(findRole(request.getRoleId()));
-        user.setDepartment(findDepartment(request.getDepartmentId()));
+        Role role = findRole(request.getRoleId());
+        user.setRole(role);
+        Integer departmentId = request.getDepartmentId();
+        if (departmentId == null) {
+            if (!isAdmin(role)) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "A department is required for non-admin users"
+                );
+            }
+            user.setDepartment(null);
+        } else {
+            user.setDepartment(findDepartment(departmentId));
+        }
         if (creating || request.getPassword() != null && !request.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
@@ -124,7 +136,12 @@ public class UserService {
     private UserResponse toResponse(User user) {
         return new UserResponse(user.getId(), user.getFullName(), user.getRole().getId(),
                 user.getRole().getName(), user.getEmail(), user.getPhoneNumber(),
-                user.getDepartment().getId(), user.getDepartment().getName());
+                user.getDepartment() == null ? null : user.getDepartment().getId(),
+                user.getDepartment() == null ? null : user.getDepartment().getName());
+    }
+
+    private boolean isAdmin(Role role) {
+        return role.getName() != null && "admin".equalsIgnoreCase(role.getName().trim());
     }
 
     private String trim(String value) {
@@ -132,20 +149,23 @@ public class UserService {
     }
 
 
+//    private String fullName;
+//    private String email;
+//    private String phoneNumber;
+//    private Integer roleId;
+//    private Integer departmentId;
+//    private String password;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    public  String createAdmin() {
+        UserRequest admin = new UserRequest();
+        admin.setFullName("Admin");
+        admin.setEmail("admin@gmail.com");
+        admin.setPassword("00000000");
+        admin.setRoleId(2);
+        User user = new User();
+        apply(user, admin, true);
+        toResponse(userRepository.save(user));
+        return "Success";
+    }
 
 }
