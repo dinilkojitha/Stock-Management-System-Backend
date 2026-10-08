@@ -52,6 +52,7 @@ public class UserService {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password");
             }
             User user1 = new User();
+            user1.setId(user.getId());
             user1.setFullName(user.getFullName());
             user1.setEmail(user.getEmail());
             user1.setPhoneNumber(user.getPhoneNumber());
